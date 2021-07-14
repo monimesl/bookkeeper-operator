@@ -1,7 +1,0 @@
-apiVersion: bookkeeper.monime.sl.monime.sl/v1alpha1
-kind: BookkeeperCluster
-metadata:
-  name: bookkeepercluster-sample
-spec:
-  # Add fields here
-  foo: bar
