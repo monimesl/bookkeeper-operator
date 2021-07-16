@@ -34,8 +34,8 @@ const (
 )
 
 const (
-	defaultImageRepository = "apache/bookkeeper"
-	defaultImageTag        = "4.11.1"
+	imageRepository        = "monime/bookkeeper"
+	defaultImageTag        = "latest"
 )
 
 const (
@@ -60,9 +60,9 @@ type BookkeeperClusterSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Image defines the container image to use.
+	// BookkeeperVersion defines the version of bookkeeper to use
 	// +optional
-	Version string `json:"version,omitempty"`
+	BookkeeperVersion string `json:"version,omitempty"`
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:Minimum=1
 	Size int32 `json:"size,omitempty"`
@@ -224,9 +224,9 @@ func setDefaults(p *pod.Probes) bool {
 }
 
 func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
-	if in.Version == "" {
+	if in.BookkeeperVersion == "" {
 		changed = true
-		in.Version = defaultImageTag
+		in.BookkeeperVersion = defaultImageTag
 	}
 	if in.Size == 0 {
 		changed = true

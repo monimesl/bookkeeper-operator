@@ -16,8 +16,8 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-ARG BK_VERSION=4.11.1
-FROM apache/bookkeeper:${BK_VERSION}
+ARG bk_version=4.11.1
+FROM apache/bookkeeper:${bk_version}
 
 RUN set -x \
     && yum -y install nc \

@@ -133,8 +133,8 @@ func (in *BookkeeperCluster) WaitClusterTermination(kubeClient client.Client) (e
 // Image the bookkeeper docker image for the cluster
 func (in *BookkeeperCluster) Image() basetype.Image {
 	return basetype.Image{
-		Tag:        in.Spec.Version,
-		Repository: defaultImageRepository,
+		Tag:        in.Spec.BookkeeperVersion,
+		Repository: imageRepository,
 		PullPolicy: v1.PullIfNotPresent,
 	}
 }
