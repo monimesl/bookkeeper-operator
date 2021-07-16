@@ -20,14 +20,21 @@ import (
 	"context"
 	"fmt"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
+	"github.com/monimesl/bookkeeper-operator/internal/zk"
 	"github.com/monimesl/operator-helper/k8s/pod"
 	"github.com/monimesl/operator-helper/reconciler"
+	v1 "k8s.io/api/apps/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 // ReconcileClusterStatus reconcile the status of the specified cluster
 func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) (err error) {
 	expectedClusterSize := int(cluster.Spec.Size)
 	labels := cluster.CreateLabels(true, nil)
+	err = createZkSizeNode(ctx, cluster)
+	if err != nil {
+		return err
+	}
 	readyReplicas, unreadyReplicas, err := pod.ListAllWithMatchingLabelsByReadiness(ctx.Client(), cluster.Name, labels)
 	if err != nil {
 		return err
@@ -57,4 +64,24 @@ func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.Bookkeeper
 		err = fmt.Errorf("error on updating the cluster (%s) status: %v", cluster.Name, err)
 	}
 	return
+}
+
+func createZkSizeNode(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) error {
+	if cluster.Spec.Size != cluster.Status.Metadata.Size {
+		ctx.Logger().Info("Setting the cluster metadata",
+			"cluster", cluster.Name)
+		sts := &v1.StatefulSet{}
+		return ctx.GetResource(types.NamespacedName{
+			Name:      cluster.StatefulSetName(),
+			Namespace: cluster.Namespace,
+		}, sts,
+			func() (err error) {
+				if err = zk.UpdateZkClusterMetadata(cluster); err == nil {
+					cluster.Status.Metadata.Size = cluster.Spec.Size
+					err = ctx.Client().Status().Update(context.TODO(), cluster)
+				}
+				return
+			}, nil)
+	}
+	return nil
 }

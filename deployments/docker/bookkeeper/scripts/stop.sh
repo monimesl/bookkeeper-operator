@@ -30,9 +30,9 @@ function maybeDecommissionBookie() {
   echo "Syncing and fetching the size of the cluster $CLUSTER_NAME"
   SIZE=""
   for ((i = 0; i < 15; i++)); do
-    SYNC=$(zk-shell "$ZK_URL" --run-once "sync $CLUSTER_META_NODE_PATH")
+    SYNC=$(zk-shell "$ZK_URL" --run-once "sync $CLUSTER_META_SIZE_NODE_PATH")
     if [[ -z "${SYNC}" ]]; then
-      SIZE=$(zk-shell "$ZK_URL" --run-once "get $CLUSTER_META_NODE_PATH" | cut -d"=" -f2)
+      SIZE=$(zk-shell "$ZK_URL" --run-once "get $CLUSTER_META_SIZE_NODE_PATH")
       break
     fi
     echo "Failed to connect. Retrying($i) after 2 seconds"
@@ -50,6 +50,7 @@ function maybeDecommissionBookie() {
   if [[ -n "$SIZE" && "$MY_ORDINAL" -gt "$SIZE" ]]; then
     echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME"
     /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
+    zk-shell "$ZK_URL" --run-once "set $CLUSTER_META_UPDATE_TIME_NODE_PATH '$(($(date +%s%N) / 1000000))'"
   fi
   set -e
 

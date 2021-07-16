@@ -51,6 +51,14 @@ type BookkeeperClusterStatus struct {
 	// Membership describe the status of members within the cluster
 	// +optional
 	Membership Membership `json:"members"`
+	// Metadata defines the metadata status of the cluster
+	// +optional
+	Metadata Metadata `json:"metadata,omitempty"`
+}
+
+// Metadata defines the metadata status of the cluster
+type Metadata struct {
+	Size int32 `json:"size,omitempty"`
 }
 
 // Membership is the status of the members within the cluster

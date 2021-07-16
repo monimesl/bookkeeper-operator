@@ -4,5 +4,5 @@ metadata:
   name: cluster-1
   namespace: bookeeper
 spec:
-  size: 1
+  size: 2
   zookeeperUrl: "cluster-1-zk-headless.zookeeper.svc.cluster.local:2181"

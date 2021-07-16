@@ -63,7 +63,6 @@ jobs:
           file: deployments/docker/bookkeeper/Dockerfile
           tags: |
             ${{ steps.prepare.outputs.image }}:4.10.0
-            ${{ steps.prepare.outputs.latest }}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=${{ github.event.repository.description }}
@@ -81,7 +80,6 @@ jobs:
           file: deployments/docker/bookkeeper/Dockerfile
           tags: |
             ${{ steps.prepare.outputs.image }}:4.11.0
-            ${{ steps.prepare.outputs.latest }}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=${{ github.event.repository.description }}
