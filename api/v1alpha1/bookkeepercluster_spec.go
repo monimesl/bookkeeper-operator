@@ -34,8 +34,8 @@ const (
 )
 
 const (
-	imageRepository        = "monime/bookkeeper"
-	defaultImageTag        = "latest"
+	imageRepository = "monime/bookkeeper"
+	defaultImageTag = "latest"
 )
 
 const (

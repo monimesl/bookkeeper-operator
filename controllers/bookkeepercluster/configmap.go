@@ -79,7 +79,7 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 	}
 	for k, v := range cluster.Spec.Configs {
 		if oputil.Contains(excludedOptions, k) {
-			log.Warn("ignoring the config: %s", k)
+			log.Warnf("ignoring the config: %s", k)
 			continue
 		}
 		if !strings.HasPrefix(k, "BK_") {
