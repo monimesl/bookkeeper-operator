@@ -37,8 +37,8 @@ type Client struct {
 	requiredNodesCreated bool
 }
 
-// UpdateZkClusterMetadata update the metadata of the specified cluster
-func UpdateZkClusterMetadata(cluster *v1alpha1.BookkeeperCluster) error {
+// UpdateMetadata update the metadata of the specified cluster
+func UpdateMetadata(cluster *v1alpha1.BookkeeperCluster) error {
 	if cl, err := NewZkClient(cluster); err != nil {
 		return err
 	} else {
@@ -141,7 +141,7 @@ func (c *Client) createNode(path string, data []byte) error {
 			nodeData = data
 		}
 		_, err := c.conn.Create(zNode, nodeData, 0, zk.WorldACL(zk.PermAll))
-		if err != nil {
+		if err != nil && err != zk.ErrNodeExists {
 			return err
 		}
 	}

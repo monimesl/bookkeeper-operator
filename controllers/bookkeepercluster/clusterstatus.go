@@ -31,7 +31,7 @@ import (
 func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) (err error) {
 	expectedClusterSize := int(cluster.Spec.Size)
 	labels := cluster.CreateLabels(true, nil)
-	err = createZkSizeNode(ctx, cluster)
+	err = updateMetadata(ctx, cluster)
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.Bookkeeper
 	return
 }
 
-func createZkSizeNode(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) error {
+func updateMetadata(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) error {
 	if cluster.Spec.Size != cluster.Status.Metadata.Size {
 		ctx.Logger().Info("Setting the cluster metadata",
 			"cluster", cluster.Name)
@@ -76,7 +76,7 @@ func createZkSizeNode(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluste
 			Namespace: cluster.Namespace,
 		}, sts,
 			func() (err error) {
-				if err = zk.UpdateZkClusterMetadata(cluster); err == nil {
+				if err = zk.UpdateMetadata(cluster); err == nil {
 					cluster.Status.Metadata.Size = cluster.Spec.Size
 					err = ctx.Client().Status().Update(context.TODO(), cluster)
 				}

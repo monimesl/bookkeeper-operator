@@ -6,7 +6,6 @@
 *.so
 *.dylib
 bin
-testbin/*
 
 # Test binary, build with `go test -c`
 *.test
@@ -23,6 +22,10 @@ testbin/*
 *.swp
 *.swo
 *~
+
+output
+config/crd/bases/
+config/webhook/manifests.yaml
 
 deployments/docker/bookkeeper/build.sh
 deployments/docker/bookkeeper/run.sh
