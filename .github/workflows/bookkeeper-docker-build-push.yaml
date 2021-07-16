@@ -30,10 +30,10 @@ jobs:
         run: |
           DOCKER_IMAGE=monime/bookkeeper
           VERSION=${GITHUB_REF#refs/tags/}
-          TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:latest"
+          LATEST="${DOCKER_IMAGE}:latest"
           echo ::set-output name=image::${DOCKER_IMAGE}
           echo ::set-output name=version::${VERSION}
-          echo ::set-output name=tags::${TAGS}
+          echo ::set-output name=latest::${LATEST}
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
       - name: Set up Docker Buildx
@@ -53,6 +53,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
+      # Bookkeeper-4.10.0
       - uses: docker/build-push-action@v2
         name: Build-Push-4.10.0
         with:
@@ -60,7 +61,9 @@ jobs:
           build-args: |
             bk_version=4.10.0
           file: deployments/docker/bookkeeper/Dockerfile
-          tags: ${{ steps.prepare.outputs.image }}:4.10.0,${{ steps.prepare.outputs.tags }}
+          tags: |
+            ${{ steps.prepare.outputs.image }}:4.10.0
+            ${{ steps.prepare.outputs.latest }}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=${{ github.event.repository.description }}
@@ -68,6 +71,7 @@ jobs:
             org.opencontainers.image.created=${{ steps.prepare.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
 
+      # Bookkeeper-4.11.0
       - uses: docker/build-push-action@v2
         name: Build-Push-4.11.0
         with:
@@ -75,7 +79,9 @@ jobs:
           build-args: |
             bk_version=4.11.0
           file: deployments/docker/bookkeeper/Dockerfile
-          tags: ${{ steps.prepare.outputs.image }}:4.11.0,${{ steps.prepare.outputs.tags }}
+          tags: |
+            ${{ steps.prepare.outputs.image }}:4.11.0
+            ${{ steps.prepare.outputs.latest }}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=${{ github.event.repository.description }}
@@ -83,6 +89,7 @@ jobs:
             org.opencontainers.image.created=${{ steps.prepare.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
 
+      # Bookkeeper-4.11.1
       - uses: docker/build-push-action@v2
         name: Build-Push-4.11.1
         with:
@@ -90,7 +97,9 @@ jobs:
           build-args: |
             bk_version=4.11.1
           file: deployments/docker/bookkeeper/Dockerfile
-          tags: ${{ steps.prepare.outputs.image }}:4.11.1,${{ steps.prepare.outputs.tags }}
+          tags: |
+            ${{ steps.prepare.outputs.image }}:4.11.1
+            ${{ steps.prepare.outputs.latest }}
           labels: |
             org.opencontainers.image.title=${{ github.event.repository.name }}
             org.opencontainers.image.description=${{ github.event.repository.description }}
