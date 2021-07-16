@@ -1,0 +1,8 @@
+apiVersion: bookkeeper.monime.sl/v1alpha1
+kind: BookkeeperCluster
+metadata:
+  name: cluster-1
+  namespace: bookeeper
+spec:
+  size: 1
+  zookeeperUrl: "cluster-1-zk-headless.zookeeper.svc.cluster.local:2181"
