@@ -208,8 +208,7 @@ spec:
                 format: int32
                 type: integer
               persistence:
-                description: Persistence defines cluster node persistence volume is
-                  configured
+                description: Persistence configures your node storage
                 properties:
                   index:
                     description: IndexVolumeClaimSpec describes the PVC for the bookkeeper
@@ -583,6 +582,15 @@ spec:
                           backing this claim.
                         type: string
                     type: object
+                  reclaimPolicy:
+                    description: ReclaimPolicy decides the fate of the PVCs after
+                      the cluster is deleted. If it's set to Delete and the zookeeper
+                      cluster is deleted, the corresponding PVCs will be deleted.
+                      The default value is Retain.
+                    enum:
+                    - Delete
+                    - Retain
+                    type: string
                 type: object
               pod:
                 description: PodConfig defines common configuration for the bookkeeper

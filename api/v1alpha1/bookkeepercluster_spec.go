@@ -94,7 +94,8 @@ type BookkeeperClusterSpec struct {
 	Probes *pod.Probes `json:"probes,omitempty"`
 	// Env defines environment variables for the bookkeeper statefulset pods
 	Env []v1.EnvVar `json:"env,omitempty"`
-
+	// Persistence configures your node storage
+	// +optional
 	Persistence *Persistence `json:"persistence,omitempty"`
 
 	// Labels defines the labels to attach to the bookkeeper deployment
@@ -171,6 +172,11 @@ type VolumeReclaimPolicy string
 
 // Persistence defines cluster node persistence volume is configured
 type Persistence struct {
+	// ReclaimPolicy decides the fate of the PVCs after the cluster is deleted.
+	// If it's set to Delete and the zookeeper cluster is deleted, the corresponding PVCs will be deleted.
+	// The default value is Retain.
+	// +kubebuilder:validation:Enum="Delete";"Retain"
+	ReclaimPolicy VolumeReclaimPolicy `json:"reclaimPolicy,omitempty"`
 	// JournalVolumeClaimSpec describes the PVC for the bookkeeper journal
 	JournalVolumeClaimSpec *v1.PersistentVolumeClaimSpec `json:"journal,omitempty"`
 	// LedgerVolumeClaimSpec describes the PVC for the bookkeeper ledgers
@@ -180,6 +186,10 @@ type Persistence struct {
 }
 
 func (in *Persistence) setDefault() (changed bool) {
+	if in.ReclaimPolicy != VolumeReclaimPolicyDelete && in.ReclaimPolicy != VolumeReclaimPolicyRetain {
+		in.ReclaimPolicy = VolumeReclaimPolicyRetain
+		changed = true
+	}
 	if in.JournalVolumeClaimSpec == nil {
 		changed = true
 		in.JournalVolumeClaimSpec = createVolumeClaimSpec()

@@ -124,6 +124,11 @@ func (in *BookkeeperCluster) IsAdminServerEnabled() bool {
 	return in.Spec.Ports.Admin > 0
 }
 
+// ShouldDeleteStorage returns whether the PV should should be deleted or not
+func (in *BookkeeperCluster) ShouldDeleteStorage() bool {
+	return in.Spec.Persistence.ReclaimPolicy == VolumeReclaimPolicyDelete
+}
+
 // WaitClusterTermination wait for all the bookkeeper pods in cluster to terminated
 func (in *BookkeeperCluster) WaitClusterTermination(kubeClient client.Client) (err error) {
 	labels := in.CreateLabels(true, nil)
