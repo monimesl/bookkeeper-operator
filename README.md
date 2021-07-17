@@ -13,7 +13,7 @@ Simplify [Bookkeeper](https://bookkeeper.apache.org/) installation and managemen
 The Bookkeeper Operator enable native [Kubernetes](https://kubernetes.io/)
 deployment and management of Apache Bookkeeper cluster.
 View [versions](https://github.com/monimesl/bookkeeper-operator/blob/main/deployments/docker/bookkeeper/versions)
-to see the Zookeeper versions we provide support for.
+to see the Bookkeeper versions we provide support for.
 For now, release [4.11.1](https://bookkeeper.apache.org/docs/4.11.1/overview/overview/) is used as the installed version.
 
 ## Prerequisites
