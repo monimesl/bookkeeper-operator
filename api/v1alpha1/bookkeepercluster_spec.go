@@ -173,8 +173,8 @@ type VolumeReclaimPolicy string
 // Persistence defines cluster node persistence volume is configured
 type Persistence struct {
 	// ReclaimPolicy decides the fate of the PVCs after the cluster is deleted.
-	// If it's set to Delete and the zookeeper cluster is deleted, the corresponding PVCs will be deleted.
-	// The default value is Retain.
+	// If it's set to Delete and the bookkeeper cluster is deleted, the corresponding
+	// PVCs will be deleted. The default value is Retain.
 	// +kubebuilder:validation:Enum="Delete";"Retain"
 	ReclaimPolicy VolumeReclaimPolicy `json:"reclaimPolicy,omitempty"`
 	// JournalVolumeClaimSpec describes the PVC for the bookkeeper journal
@@ -214,23 +214,6 @@ func createVolumeClaimSpec() *v1.PersistentVolumeClaimSpec {
 			},
 		},
 	}
-}
-
-func setDefaults(p *pod.Probes) bool {
-	changed := p.SetDefault()
-	if p.Liveness.InitialDelaySeconds == pod.DefaultLivenessProbeInitialDelaySeconds {
-		changed = true
-		p.Liveness.InitialDelaySeconds = 30
-	}
-	if p.Liveness.FailureThreshold == pod.DefaultLivenessProbeFailureThreshold {
-		changed = true
-		p.Liveness.FailureThreshold = 6
-	}
-	if p.Liveness.PeriodSeconds == pod.DefaultLivenessProbePeriodSeconds {
-		changed = true
-		p.Liveness.FailureThreshold = 10
-	}
-	return changed
 }
 
 func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
@@ -299,8 +282,8 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 	if in.Probes == nil {
 		changed = true
 		in.Probes = &pod.Probes{}
-	}
-	if in.Probes.SetDefault() {
+		in.Probes.SetDefault()
+	} else if in.Probes.SetDefault() {
 		changed = true
 	}
 	if in.JVMOptions == nil {
