@@ -28,6 +28,7 @@ function waitForSignal() {
   waits=0
   sleep "$INIT_SLEEP"
   while [ $waits -lt "$WAITS" ]; do
+    cat $LOG_FILE
     ps -p "$PID" >/dev/null
     if [[ $? -eq 1 ]]; then
       break # process completes
@@ -38,8 +39,8 @@ function waitForSignal() {
     fi
     sleep 2
     echo "sanity test still running on wait: $waits" >&2
-    cat $LOG_FILE
   done
+  cat $LOG_FILE
   # shellcheck disable=SC2002
   cat $LOG_FILE | grep 'Exception in thread \"main\"' >/dev/null
   # shellcheck disable=SC2181
