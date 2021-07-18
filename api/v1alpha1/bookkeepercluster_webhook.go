@@ -37,9 +37,9 @@ var _ webhook.Defaulter = &BookkeeperCluster{}
 
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (in *BookkeeperCluster) Default() {
-	config.RequireRootLogger().Info("default", "name", in.Name)
-
-	// TODO(user): fill in your defaulting logic.
+	config.RequireRootLogger().Info("[Webhook] Setting defaults", "name", in.Name)
+	in.SetSpecDefaults()
+	in.SetStatusDefaults()
 }
 
 // TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
