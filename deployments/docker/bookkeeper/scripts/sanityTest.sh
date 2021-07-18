@@ -38,13 +38,15 @@ function waitForSignal() {
     fi
     sleep 2
     echo "sanity test still running on wait: $waits" >&2
+    cat $LOG_FILE
   done
   # shellcheck disable=SC2002
   cat $LOG_FILE | grep 'Exception in thread \"main\"' >/dev/null
+  # shellcheck disable=SC2181
   if [[ $? -eq 0 ]]; then
     set -e
     printf "bookkeeper sanity check failed: \n"
-    cat $LOG_FILE && rm $LOG_FILE
+    rm $LOG_FILE
     kill "$PID"
     exit 1
   fi

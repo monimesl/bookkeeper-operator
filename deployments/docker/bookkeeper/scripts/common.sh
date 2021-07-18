@@ -76,7 +76,7 @@ function waitBookieInit() {
 }
 
 function performSanityCheck() {
-  eval "/scripts/sanityTest.sh 3 3"
+  eval "/scripts/sanityTest.sh 3 5"
 }
 
 source /opt/bookkeeper/scripts/common.sh >/dev/null
