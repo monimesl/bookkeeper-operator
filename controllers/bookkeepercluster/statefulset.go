@@ -151,10 +151,10 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Ports:           containerPorts,
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
-		//LivenessProbe:   createLivenessProbe(c),
-		ReadinessProbe: createReadinessProbe(c.Spec.Probes.Readiness),
-		Lifecycle:      &v12.Lifecycle{PreStop: createPreStopHandler()},
-		Env:            pod.DecorateContainerEnvVars(true, c.Spec.Env...),
+		LivenessProbe:   createLivenessProbe(c),
+		ReadinessProbe:  createReadinessProbe(c.Spec.Probes.Readiness),
+		Lifecycle:       &v12.Lifecycle{PreStop: createPreStopHandler()},
+		Env:             pod.DecorateContainerEnvVars(true, c.Spec.Env...),
 	}
 	spec := pod.NewSpec(c.Spec.PodConfig, volumes, nil, []v12.Container{container})
 	spec.TerminationGracePeriodSeconds = &defaultTerminationGracePeriod
@@ -200,7 +200,7 @@ func createReadinessProbe(probe *pod.Probe) *v12.Probe {
 		PeriodSeconds:       probe.PeriodSeconds,
 		Handler: v12.Handler{
 			Exec: &v12.ExecAction{
-				Command: []string{"/bin/sh", "-c", "/opt/bookkeeper/bin/bookkeeper shell bookiesanity"},
+				Command: []string{"/bin/sh", "-c", "/scripts/sanityTest.sh 1 0"},
 			},
 		},
 	}
