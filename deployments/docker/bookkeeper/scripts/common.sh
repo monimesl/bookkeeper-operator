@@ -16,9 +16,7 @@
 # limitations under the License.
 #
 
-set -x
-source /config/bootEnv.sh
-set -e
+set -x -e
 
 HOSTNAME=$(hostname -s)
 ZK_URL=${BK_zkServers:-127.0.0.1:2181}
@@ -26,7 +24,7 @@ LEDGERS_ROOT=${BK_zkLedgersRootPath:-"/ledgers"}
 
 # Extract resource name and this members ordinal value from the pod's hostname
 if [[ $HOSTNAME =~ (.*)-([0-9]+)$ ]]; then
-  MY_ORDINAL=$((BASH_REMATCH[2] + 1))
+  MY_ORDINAL=$((BASH_REMATCH[2]))
 else
   echo "WARNING: Unexpected hostname: \"$HOSTNAME\". Expecting to match the regex: (.*)-([0-9]+)$"
   MY_ORDINAL=0
@@ -48,6 +46,7 @@ function waitZookeeper() {
     sleep 2
     echo "wait for zookeeper at: ${ZK_URL}, retry: $retries" >&2
     nc -z "$ZK_HOST" "$ZK_PORT"
+    # shellcheck disable=SC2181
     if [[ $? -eq 0 ]]; then
       return
     fi

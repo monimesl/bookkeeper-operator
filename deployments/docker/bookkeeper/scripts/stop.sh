@@ -45,15 +45,14 @@ function maybeDecommissionBookie() {
   # the cluster size at any arbitrary normal point in time equals the highest `myid`.
   # which is 1 increment of the ordinal of the pod running the container. On cluster
   # down scaling($SIZE reduction), the pod with the highest ordinal hence `myid` is deleted.
-  # This means any bookie whose `myid` is greater than the current cluster size is being
+  # This means any bookie whose ordinal is >= the current cluster size is being
   # permanently removed from the ensemble
-  if [[ -n "$SIZE" && "$MY_ORDINAL" -gt "$SIZE" ]]; then
+  if [[ -n "$SIZE" && "$MY_ORDINAL" -ge "$SIZE" ]]; then
     echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME"
     /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
     zk-shell "$ZK_URL" --run-once "set $CLUSTER_META_UPDATE_TIME_NODE_PATH '$(($(date +%s%N) / 1000000))'"
   fi
   set -e
-
 }
 
 killBookie
@@ -65,5 +64,7 @@ maybeDecommissionBookie
 echo "Eager kill the process keeping the docker runtime instead of waiting for kubernetes 'TerminationGracePeriodSeconds'"
 
 SLEEP_PROCESS=$(cat sleep.pid)
+
+echo "killing the processing = $SLEEP_PROCESS"
 
 kill "$SLEEP_PROCESS"

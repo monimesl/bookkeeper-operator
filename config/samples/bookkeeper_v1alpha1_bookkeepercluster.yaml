@@ -4,7 +4,8 @@ metadata:
   name: cluster-1
   namespace: bookkeeper
 spec:
-  size: 1
+  size: 3
+  version: "4.11.1"
   zookeeperUrl: "cluster-1-zk-headless.zookeeper.svc.cluster.local:2181"
   persistence:
     reclaimPolicy: "Delete"
