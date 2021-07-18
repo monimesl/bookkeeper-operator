@@ -225,10 +225,6 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 		changed = true
 		in.Size = defaultClusterSize
 	}
-	//if in.Size < minimumClusterSize {
-	//	changed = true
-	//	in.Size = minimumClusterSize
-	//}
 	if in.MaxUnavailableNodes == 0 {
 		changed = true
 		in.MaxUnavailableNodes = 1
