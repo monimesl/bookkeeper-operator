@@ -62,7 +62,10 @@ type BookkeeperClusterSpec struct {
 
 	// BookkeeperVersion defines the version of bookkeeper to use
 	// +optional
-	BookkeeperVersion string `json:"version,omitempty"`
+	BookkeeperVersion string `json:"bookkeeperVersion,omitempty"`
+	// ImagePullPolicy describes a policy for if/when to pull the image
+	// +optional
+	ImagePullPolicy v1.PullPolicy `json:"imagePullPolicy,omitempty"`
 	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:Minimum=1
 	Size int32 `json:"size,omitempty"`
@@ -220,6 +223,10 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 	if in.BookkeeperVersion == "" {
 		changed = true
 		in.BookkeeperVersion = defaultImageTag
+	}
+	if in.ImagePullPolicy == "" {
+		changed = true
+		in.ImagePullPolicy = v1.PullIfNotPresent
 	}
 	if in.Size == 0 {
 		changed = true

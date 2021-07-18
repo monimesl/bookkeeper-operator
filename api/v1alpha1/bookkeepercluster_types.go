@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"github.com/monimesl/operator-helper/basetype"
 	"github.com/monimesl/operator-helper/k8s"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"strings"
@@ -139,7 +138,7 @@ func (in *BookkeeperCluster) WaitClusterTermination(kubeClient client.Client) (e
 func (in *BookkeeperCluster) Image() basetype.Image {
 	return basetype.Image{
 		Repository: imageRepository,
-		PullPolicy: v1.PullIfNotPresent,
+		PullPolicy: in.Spec.ImagePullPolicy,
 		Tag:        in.Spec.BookkeeperVersion,
 	}
 }
