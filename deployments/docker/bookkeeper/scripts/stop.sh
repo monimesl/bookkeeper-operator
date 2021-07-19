@@ -27,7 +27,7 @@ if [ "$(id -u)" = '0' ]; then
 fi
 
 function killBookie() {
-  print "Stopping the bookie in the background"
+  printf "Stopping the bookie in the background"
   lsof -i :"$BK_PORT" | grep LISTEN | awk '{print $2}' | xargs kill 2>/dev/nul
 }
 
