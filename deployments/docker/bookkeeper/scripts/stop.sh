@@ -20,8 +20,13 @@ source /scripts/common.sh
 
 set -e -x -m
 
+if [ "$(id -u)" = '0' ]; then
+  echo "This is root, will use user $BK_USER to run this script"
+  sudo su "$BK_USER"
+fi
+
 function killBookie() {
-  printf "Stopping the bookie in the background.\n"
+  print "Stopping the bookie in the background"
   lsof -i :"$BK_PORT" | grep LISTEN | awk '{print $2}' | xargs kill 2>/dev/nul
 }
 
