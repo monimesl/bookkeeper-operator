@@ -16,14 +16,14 @@
 # limitations under the License.
 #
 
-source /scripts/common.sh
+source /scripts/common.sh >/dev/null
 
 set -e -x -m
 
 if [ "$(id -u)" = '0' ]; then
   echo "This is root, will use user $BK_USER to run this script"
   sudo su "$BK_USER"
-  source /scripts/common.sh
+  source /scripts/common.sh >/dev/null
 fi
 
 function killBookie() {

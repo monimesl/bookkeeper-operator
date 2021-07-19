@@ -21,7 +21,8 @@ FROM apache/bookkeeper:${bk_version}
 ARG BK_USER=bookkeeper
 RUN set -x \
     && yum -y install nc \
-    && yum -y install lsof
+    && yum -y install lsof \
+    && yum -y install net-tools
 
 WORKDIR /opt/bookkeeper
 

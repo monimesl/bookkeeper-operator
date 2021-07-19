@@ -18,6 +18,8 @@
 
 set -x -e
 
+source /opt/bookkeeper/scripts/common.sh >/dev/null
+
 HOSTNAME=$(hostname -s)
 ZK_URL=${BK_zkServers:-127.0.0.1:2181}
 LEDGERS_ROOT=${BK_zkLedgersRootPath:-"/ledgers"}
@@ -32,7 +34,7 @@ fi
 
 ZK_HOST=${ZK_URL%%:*}
 ZK_PORT=${ZK_URL##*:}
-BK_PORT=${BK_bookiePort:-31181}
+BK_PORT=${BK_bookiePort:-3181}
 
 export MY_ORDINAL HOSTNAME ZK_HOST ZK_PORT BK_PORT
 export CLUSTER_META_NODE_PATH="$CLUSTER_METADATA_PARENT_ZNODE/$CLUSTER_NAME"
@@ -77,5 +79,3 @@ function waitBookieInit() {
 function performSanityCheck() {
   eval "/scripts/sanityTest.sh 3 5"
 }
-
-source /opt/bookkeeper/scripts/common.sh >/dev/null
