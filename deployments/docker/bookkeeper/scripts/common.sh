@@ -16,12 +16,9 @@
 # limitations under the License.
 #
 
-
-set +x + e
-source /opt/bookkeeper/scripts/common.sh >/dev/null
-python /opt/bookkeeper/scripts/apply-config-from-env.py "${BK_HOME}"/conf
 set -x -e
 
+source /opt/bookkeeper/scripts/common.sh >/dev/null
 
 HOSTNAME=$(hostname -s)
 ZK_URL=${BK_zkServers:-127.0.0.1:2181}

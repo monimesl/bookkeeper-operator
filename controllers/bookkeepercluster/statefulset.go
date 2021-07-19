@@ -191,7 +191,9 @@ func createVolumeMountsFromDirs(directories []string, volumeName string) []v12.V
 }
 
 func createPreStopHandler() *v12.Handler {
-	return &v12.Handler{Exec: &v12.ExecAction{Command: []string{"/scripts/stop.sh"}}}
+	return &v12.Handler{Exec: &v12.ExecAction{
+		Command: []string{"sudo -s -E -u \"$BK_USER\"", "/bin/sh", "-c", "/scripts/stop.sh"},
+	}}
 }
 
 func createReadinessProbe(probe *pod.Probe) *v12.Probe {
