@@ -75,7 +75,8 @@ func (c *Client) updateClusterSizeMeta(cluster *v1alpha1.BookkeeperCluster) erro
 		" metadata in zookeeper", "cluster", cluster.GetName())
 	sizeZNode := clusterSizeNode(cluster)
 	updateTimeZNode := clusterUpdateTimeNode(cluster)
-	err := c.setNodeData(sizeZNode, []byte(fmt.Sprintf("%d", cluster.Spec.Size)))
+	var size = int(*cluster.Spec.Size)
+	err := c.setNodeData(sizeZNode, []byte(fmt.Sprintf("%d", size)))
 	if err != nil {
 		return err
 	}
