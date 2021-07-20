@@ -76,5 +76,5 @@ function waitBookieInit() {
 }
 
 function performSanityTest() {
-  eval "/scripts/sanityTest.sh 3 5"
+  eval "/scripts/sanityTest.sh"
 }

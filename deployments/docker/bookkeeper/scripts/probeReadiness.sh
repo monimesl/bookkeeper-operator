@@ -18,7 +18,4 @@
 
 set -e -x
 
-RETRIES=2
-INIT_SLEEP_TIME=5
-
-/scripts/sanityTest.sh $RETRIES $INIT_SLEEP_TIME
+/scripts/sanityTest.sh

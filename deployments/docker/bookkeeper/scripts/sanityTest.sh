@@ -16,46 +16,6 @@
 # limitations under the License.
 #
 
-set -x -e -u -m
+set -e -x
 
-RETRIES=${1:-1}
-INIT_SLEEP=${2:-0}
-LOG_FILE=output.log
-
-function waitForSignal() {
-  set +e
-  PID=$1
-  waits=0
-  sleep "$INIT_SLEEP"
-  while [ $waits -lt "$RETRIES" ]; do
-    cat $LOG_FILE
-    ps -p "$PID" >/dev/null
-    if [[ $? -eq 1 ]]; then
-      break # process completes
-    fi
-    waits=$((waits + 1))
-    if [[ $waits -eq "$RETRIES" ]]; then
-      break
-    fi
-    sleep 2
-    echo "sanity test still running on wait: $waits" >&2
-  done
-  cat $LOG_FILE
-  # shellcheck disable=SC2002
-  cat $LOG_FILE | grep 'Bookie sanity test succeeded' >/dev/null
-  # shellcheck disable=SC2181
-  if [[ $? -eq 1 ]]; then
-    set -e
-    printf "bookkeeper sanity check failed: \n"
-    rm $LOG_FILE
-    kill "$PID"
-    exit 1
-  fi
-  rm $LOG_FILE
-  set -e
-  echo "bookkeeper sanity check passed"
-  exit 0
-}
-
-/opt/bookkeeper/bin/bookkeeper shell bookiesanity &>$LOG_FILE &
-waitForSignal $!
+/opt/bookkeeper/bin/bookkeeper shell bookiesanity
