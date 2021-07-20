@@ -27,7 +27,6 @@ import (
 
 const (
 	minimumClusterSize = 3
-	defaultClusterSize = minimumClusterSize
 	defaultJournalDir  = "/bk/data/journal"
 	defaultLedgerDirs  = "/bk/data/ledger"
 	defaultIndexDirs   = "/bk/data/index"
@@ -62,6 +61,7 @@ const (
 
 var (
 	defaultTerminationGracePeriod int64 = 600
+	defaultClusterSize                  = int32(minimumClusterSize)
 )
 
 // BookkeeperClusterSpec defines the desired state of BookkeeperCluster
@@ -76,8 +76,8 @@ type BookkeeperClusterSpec struct {
 	// +optional
 	ImagePullPolicy v1.PullPolicy `json:"imagePullPolicy,omitempty"`
 	// +kubebuilder:validation:Required
-	// +kubebuilder:validation:Minimum=1
-	Size int32 `json:"size,omitempty"`
+	// +kubebuilder:validation:Minimum=0
+	Size *int32 `json:"size,omitempty"`
 	// MaxUnavailableNodes defines the maximum number of nodes that
 	// can be unavailable as per kubernetes PodDisruptionBudget
 	// Default is 1.
@@ -237,9 +237,10 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 		changed = true
 		in.ImagePullPolicy = v1.PullIfNotPresent
 	}
-	if in.Size == 0 {
+	if in.Size == nil {
 		changed = true
-		in.Size = defaultClusterSize
+		size := &defaultClusterSize
+		in.Size = size
 	}
 	if in.MaxUnavailableNodes == 0 {
 		changed = true

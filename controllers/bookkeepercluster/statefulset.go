@@ -42,11 +42,11 @@ func ReconcileStatefulSet(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCl
 	}, sts,
 		// Found
 		func() error {
-			if cluster.Spec.Size != *sts.Spec.Replicas {
+			if *cluster.Spec.Size != *sts.Spec.Replicas {
 				if err := updateStatefulset(ctx, sts, cluster); err != nil {
 					return err
 				}
-				if err := updateStatefulsetPvs(ctx, sts); err != nil {
+				if err := updateStatefulsetPVCs(ctx, sts, cluster); err != nil {
 					return err
 				}
 			}
@@ -72,14 +72,18 @@ func ReconcileStatefulSet(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCl
 }
 
 func updateStatefulset(ctx reconciler.Context, sts *v1.StatefulSet, cluster *v1alpha1.BookkeeperCluster) error {
-	sts.Spec.Replicas = &cluster.Spec.Size
+	sts.Spec.Replicas = cluster.Spec.Size
 	ctx.Logger().Info("Updating the bookkeeper statefulset.",
 		"StatefulSet.Name", sts.GetName(),
 		"StatefulSet.Namespace", sts.GetNamespace(), "NewReplicas", cluster.Spec.Size)
 	return ctx.Client().Update(context.TODO(), sts)
 }
 
-func updateStatefulsetPvs(ctx reconciler.Context, sts *v1.StatefulSet) error {
+func updateStatefulsetPVCs(ctx reconciler.Context, sts *v1.StatefulSet, cluster *v1alpha1.BookkeeperCluster) error {
+	if !cluster.ShouldDeleteStorage() {
+		// Keep the orphan PVC since the reclaimed policy said so
+		return nil
+	}
 	pvcList, err := pvc.ListAllWithMatchingLabels(ctx.Client(), sts.Namespace, sts.Spec.Template.Labels)
 	if err != nil {
 		return err
@@ -109,7 +113,7 @@ func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 	pvcs := createPersistentVolumeClaims(c)
 	labels := c.CreateLabels(true, nil)
 	templateSpec := createPodTemplateSpec(c, labels)
-	spec := statefulset.NewSpec(c.Spec.Size, c.HeadlessServiceName(), labels, pvcs, templateSpec)
+	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(), labels, pvcs, templateSpec)
 	s := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
 	s.Annotations = c.Spec.Annotations
 	return s

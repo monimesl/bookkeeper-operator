@@ -19,6 +19,7 @@ package v1alpha1
 import (
 	"fmt"
 	"github.com/monimesl/operator-helper/basetype"
+	"github.com/monimesl/operator-helper/config"
 	"github.com/monimesl/operator-helper/k8s"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -130,6 +131,9 @@ func (in *BookkeeperCluster) ShouldDeleteStorage() bool {
 
 // WaitClusterTermination wait for all the bookkeeper pods in cluster to terminated
 func (in *BookkeeperCluster) WaitClusterTermination(kubeClient client.Client) (err error) {
+	config.RequireRootLogger().Info(
+		"Waiting for the cluster to terminate",
+		"cluster", in.GetName())
 	labels := in.CreateLabels(true, nil)
 	return k8s.WaitForPodsToTerminate(kubeClient, in.Namespace, labels)
 }

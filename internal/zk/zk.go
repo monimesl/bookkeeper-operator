@@ -157,7 +157,7 @@ func (c *Client) createNode(path string, data []byte) error {
 
 func (c *Client) deleteNodes(paths ...string) error {
 	for _, path := range paths {
-		if err := c.deleteNodes(path); err != nil {
+		if err := c.deleteNode(path); err != nil {
 			return err
 		}
 	}
