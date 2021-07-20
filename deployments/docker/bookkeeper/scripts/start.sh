@@ -24,7 +24,7 @@ waitZookeeper
 
 printf "Starting the bookie in the background.\n"
 
-/opt/bookkeeper/scripts/entrypoint.sh bookie &
+/scripts/entrypoint.sh bookie &
 
 # wait for the bookie to initialize
 waitBookieInit

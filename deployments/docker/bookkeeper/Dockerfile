@@ -27,8 +27,6 @@ RUN set -x \
 WORKDIR /opt/bookkeeper
 
 COPY deployments/docker/bookkeeper/scripts /scripts
-RUN mkdir -p /opt/bookkeeper/logs \
-    && chown -fR "${BK_USER}:${BK_USER}" /opt/bookkeeper/logs
 RUN chmod +x /scripts/*
 
 ENTRYPOINT [ "/scripts/start.sh" ]
