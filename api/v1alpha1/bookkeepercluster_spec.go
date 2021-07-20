@@ -60,6 +60,10 @@ const (
 	ClientPortName = "client-port"
 )
 
+var (
+	defaultTerminationGracePeriod int64 = 600
+)
+
 // BookkeeperClusterSpec defines the desired state of BookkeeperCluster
 type BookkeeperClusterSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
@@ -300,6 +304,10 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 	}
 	if in.JVMOptions.setDefaults() {
 		changed = true
+	}
+	if in.PodConfig.TerminationGracePeriodSeconds == nil {
+		changed = true
+		in.PodConfig.TerminationGracePeriodSeconds = &defaultTerminationGracePeriod
 	}
 	return
 }

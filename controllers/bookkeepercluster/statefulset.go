@@ -33,10 +33,6 @@ import (
 	"strings"
 )
 
-var (
-	defaultTerminationGracePeriod int64 = 600
-)
-
 // ReconcileStatefulSet reconcile the statefulset of the specified cluster
 func ReconcileStatefulSet(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) error {
 	sts := &v1.StatefulSet{}
@@ -158,7 +154,7 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.Env...),
 	}
 	spec := pod.NewSpec(c.Spec.PodConfig, volumes, nil, []v12.Container{container})
-	spec.TerminationGracePeriodSeconds = &defaultTerminationGracePeriod
+	spec.TerminationGracePeriodSeconds = c.Spec.PodConfig.TerminationGracePeriodSeconds
 	return spec
 }
 
