@@ -125,11 +125,11 @@ func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]stri
 
 func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	containerPorts := []v12.ContainerPort{
-		{Name: "bookie-port", ContainerPort: c.Spec.Ports.Bookie},
+		{Name: v1alpha1.ClientPortName, ContainerPort: c.Spec.Ports.Bookie},
 	}
 	if c.IsAdminServerEnabled() {
 		containerPorts = append(containerPorts,
-			v12.ContainerPort{Name: "admin-port", ContainerPort: c.Spec.Ports.Admin},
+			v12.ContainerPort{Name: v1alpha1.AdminPortName, ContainerPort: c.Spec.Ports.Admin},
 		)
 	}
 	environment := []v12.EnvFromSource{
@@ -151,7 +151,8 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Ports:           containerPorts,
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
-		LivenessProbe:   createLivenessProbe(c),
+		StartupProbe:    createStartupProbe(c.Spec.Probes.Startup),
+		LivenessProbe:   createLivenessProbe(c.Spec.Probes.Liveness),
 		ReadinessProbe:  createReadinessProbe(c.Spec.Probes.Readiness),
 		Lifecycle:       &v12.Lifecycle{PreStop: createPreStopHandler()},
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.Env...),
@@ -196,32 +197,28 @@ func createPreStopHandler() *v12.Handler {
 	}}
 }
 
-func createReadinessProbe(probe *pod.Probe) *v12.Probe {
-	return &v12.Probe{
-		InitialDelaySeconds: probe.InitialDelaySeconds,
-		PeriodSeconds:       probe.PeriodSeconds,
-		Handler: v12.Handler{
-			Exec: &v12.ExecAction{
-				Command: []string{"/bin/sh", "-c", "/scripts/sanityTest.sh 1 0"},
-			},
+func createStartupProbe(probe *pod.Probe) *v12.Probe {
+	return probe.ToK8sProbe(v12.Handler{
+		Exec: &v12.ExecAction{
+			Command: []string{"/bin/sh", "-c", "/scripts/probeStartup.sh"},
 		},
-	}
+	})
 }
 
-func createLivenessProbe(c *v1alpha1.BookkeeperCluster) *v12.Probe {
-	probe := c.Spec.Probes.Liveness
-	port := c.Spec.Ports.Bookie
-	return &v12.Probe{
-		InitialDelaySeconds: probe.InitialDelaySeconds,
-		PeriodSeconds:       probe.PeriodSeconds,
-		Handler: v12.Handler{
-			Exec: &v12.ExecAction{
-				Command: []string{"/bin/sh", "-c",
-					fmt.Sprintf("netstat -ltn 2> /dev/null | grep %d", port),
-				},
-			},
+func createReadinessProbe(probe *pod.Probe) *v12.Probe {
+	return probe.ToK8sProbe(v12.Handler{
+		Exec: &v12.ExecAction{
+			Command: []string{"/bin/sh", "-c", "/scripts/probeReadiness.sh"},
 		},
-	}
+	})
+}
+
+func createLivenessProbe(probe *pod.Probe) *v12.Probe {
+	return probe.ToK8sProbe(v12.Handler{
+		Exec: &v12.ExecAction{
+			Command: []string{"/bin/sh", "-c", "/scripts/probeLiveness.sh"},
+		},
+	})
 }
 
 func createPersistentVolumeClaims(c *v1alpha1.BookkeeperCluster) []v12.PersistentVolumeClaim {

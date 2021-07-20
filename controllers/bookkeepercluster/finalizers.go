@@ -43,18 +43,27 @@ func ReconcileFinalizer(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 			return ctx.Client().Update(context.TODO(), cluster)
 		}
 	} else if oputil.Contains(cluster.Finalizers, finalizerName) {
+		ctx.Logger().Info("Clearing the finalizer and cleaning up the cluster",
+			"cluster", cluster.Name,
+			"finalizers", cluster.Finalizers,
+			"finalizer", finalizerName)
 		if cluster.ShouldDeleteStorage() {
 			if err := deleteAllPVCs(ctx, cluster); err != nil {
 				return err
 			}
 		}
 		if err := cleanUpMetadata(ctx, cluster); err != nil {
-			return fmt.Errorf("BookkeeperCluster object (%s) zookeeper znodes cleanup error: %v", cluster.Name, err)
+			return fmt.Errorf("BookkeeperCluster object (%s) zookeeper znodes cleanup error: %v",
+				cluster.Name, err)
 		}
 		cluster.Finalizers = oputil.Remove(finalizerName, cluster.Finalizers)
+		ctx.Logger().Info("Saving updated cluster finalizers",
+			"cluster", cluster.Name, "finalizers", cluster.Finalizers)
 		if err := ctx.Client().Update(context.TODO(), cluster); err != nil {
 			return fmt.Errorf("BookkeeperCluster object (%s) update error: %v", cluster.Name, err)
 		}
+		ctx.Logger().Info("Cluster finalizers update and cleanup success.",
+			"cluster", cluster.GetName())
 		return nil
 	}
 	return nil
@@ -103,6 +112,7 @@ func getPVCs(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) (*v1.P
 }
 
 func cleanUpMetadata(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) (err error) {
+	ctx.Logger().Info("Cleaning up the metadata for cluster", "cluster", cluster.Name)
 	if err = cluster.WaitClusterTermination(ctx.Client()); err != nil {
 		return fmt.Errorf("error on waiting for the pods to terminate (%s): %v", cluster.Name, err)
 	}
@@ -113,5 +123,6 @@ func cleanUpMetadata(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster
 }
 
 func generateFinalizerName(cluster *v1alpha1.BookkeeperCluster) string {
+	// bookkeepercluster.monime.sl-finalizer-cluster-1
 	return fmt.Sprintf("%s-%s", finalizerNamePrefix, cluster.Name)
 }

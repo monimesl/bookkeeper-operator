@@ -76,6 +76,6 @@ function waitBookieInit() {
   set -e
 }
 
-function performSanityCheck() {
+function performSanityTest() {
   eval "/scripts/sanityTest.sh 3 5"
 }

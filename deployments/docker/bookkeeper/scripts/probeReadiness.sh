@@ -16,27 +16,9 @@
 # limitations under the License.
 #
 
-source /scripts/common.sh
+set -e -x
 
-set -e -x -m
+RETRIES=1
+INIT_SLEEP_TIME=1
 
-waitZookeeper
-
-printf "Starting the bookie in the background.\n"
-
-/scripts/entrypoint.sh bookie &
-
-# wait for the bookie to initialize
-waitBookieInit
-
-# perform sanity check on the bookie
-performSanityTest
-
-printf "The bookie was successfully started. 👍 \n"
-
-sleep infinity &
-PID=$! && JOB=$(jobs -l | grep $PID | cut -d"[" -f2 | cut -d"]" -f1)
-
-echo "$PID" >sleep.pid
-
-fg "$JOB"
+/scripts/sanityTest.sh $RETRIES $INIT_SLEEP_TIME

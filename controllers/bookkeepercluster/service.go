@@ -104,11 +104,11 @@ func createService(c *v1alpha1.BookkeeperCluster, name string, hasClusterIp bool
 
 func servicePorts(c *v1alpha1.BookkeeperCluster) []v1.ServicePort {
 	ports := []v1.ServicePort{
-		{Name: "bookie-port", Port: c.Spec.Ports.Bookie},
+		{Name: v1alpha1.ClientPortName, Port: c.Spec.Ports.Bookie},
 	}
 	if c.IsAdminServerEnabled() {
 		ports = append(ports,
-			v1.ServicePort{Name: "admin-port", Port: c.Spec.Ports.Admin},
+			v1.ServicePort{Name: v1alpha1.AdminPortName, Port: c.Spec.Ports.Admin},
 		)
 	}
 	return ports

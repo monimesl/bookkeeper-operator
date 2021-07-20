@@ -55,6 +55,11 @@ const (
 	VolumeReclaimPolicyRetain = "Retain"
 )
 
+const (
+	AdminPortName  = "admin-port"
+	ClientPortName = "client-port"
+)
+
 // BookkeeperClusterSpec defines the desired state of BookkeeperCluster
 type BookkeeperClusterSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster

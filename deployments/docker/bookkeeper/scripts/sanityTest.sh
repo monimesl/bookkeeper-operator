@@ -18,7 +18,7 @@
 
 set -x -e -u -m
 
-WAITS=${1:-1}
+RETRIES=${1:-1}
 INIT_SLEEP=${2:-0}
 LOG_FILE=output.log
 
@@ -27,14 +27,14 @@ function waitForSignal() {
   PID=$1
   waits=0
   sleep "$INIT_SLEEP"
-  while [ $waits -lt "$WAITS" ]; do
+  while [ $waits -lt "$RETRIES" ]; do
     cat $LOG_FILE
     ps -p "$PID" >/dev/null
     if [[ $? -eq 1 ]]; then
       break # process completes
     fi
     waits=$((waits + 1))
-    if [[ $waits -eq "$WAITS" ]]; then
+    if [[ $waits -eq "$RETRIES" ]]; then
       break
     fi
     sleep 2
