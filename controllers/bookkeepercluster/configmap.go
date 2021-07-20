@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
+	"github.com/monimesl/bookkeeper-operator/internal/zk"
 	"github.com/monimesl/operator-helper/k8s/configmap"
 	"github.com/monimesl/operator-helper/oputil"
 	"github.com/monimesl/operator-helper/reconciler"
@@ -61,17 +62,19 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		"BOOKIE_MEM_OPTS", "BOOKIE_EXTRA_OPTS", "BOOKIE_GC_LOGGING_OPTS",
 	}
 	data := map[string]string{
-		"BK_useHostNameAsBookieID":     "true",
-		"BK_autoRecoveryDaemonEnabled": "true",
-		"BK_httpServerEnabled":         "false",
-		"BK_lostBookieRecoveryDelay":   "60",
-		"BK_zkServers":                 cluster.Spec.ZookeeperUrl,
-		"BK_CLUSTER_ROOT_PATH":         cluster.ZkRootPath(),
-		"BK_zkLedgersRootPath":         cluster.ZkLedgersRootPath(),
-		"BOOKIE_GC_OPTS":               strings.Join(jvmOptions.Gc, " "),
-		"BOOKIE_MEM_OPTS":              strings.Join(jvmOptions.Memory, " "),
-		"BOOKIE_EXTRA_OPTS":            strings.Join(jvmOptions.Extra, " "),
-		"BOOKIE_GC_LOGGING_OPTS":       strings.Join(jvmOptions.GcLogging, " "),
+		"BK_useHostNameAsBookieID":      "true",
+		"BK_autoRecoveryDaemonEnabled":  "true",
+		"BK_httpServerEnabled":          "false",
+		"BK_lostBookieRecoveryDelay":    "60",
+		"BK_zkServers":                  cluster.Spec.ZookeeperUrl,
+		"BK_CLUSTER_ROOT_PATH":          cluster.ZkRootPath(),
+		"BK_zkLedgersRootPath":          cluster.ZkLedgersRootPath(),
+		"BOOKIE_GC_OPTS":                strings.Join(jvmOptions.Gc, " "),
+		"BOOKIE_MEM_OPTS":               strings.Join(jvmOptions.Memory, " "),
+		"BOOKIE_EXTRA_OPTS":             strings.Join(jvmOptions.Extra, " "),
+		"BOOKIE_GC_LOGGING_OPTS":        strings.Join(jvmOptions.GcLogging, " "),
+		"CLUSTER_NAME":                  cluster.GetName(),
+		"CLUSTER_METADATA_PARENT_ZNODE": zk.ClusterMetadataParentZNode,
 	}
 	if cluster.IsAdminServerEnabled() {
 		data["BK_httpServerEnabled"] = "true"
