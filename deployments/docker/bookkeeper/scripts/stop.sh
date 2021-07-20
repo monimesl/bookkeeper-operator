@@ -22,7 +22,7 @@ source /scripts/common.sh >/dev/null
 
 function killBookie() {
   printf "Stopping the bookie in the background"
-  lsof -i :"$BK_PORT" | grep LISTEN | awk '{print $2}' | xargs kill 2>/dev/nul
+  lsof -i :"$BK_PORT" | grep LISTEN | awk '{print $2}' | xargs kill 2>/dev/null
 }
 
 function maybeDecommissionBookie() {
