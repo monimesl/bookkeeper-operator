@@ -32,6 +32,10 @@ waitBookieInit
 # perform sanity check on the bookie
 performSanityTest
 
+printf "Probing whether the bookie is alive\n"
+
+/scripts/probeLiveness.sh
+
 printf "The bookie was successfully started. 👍 \n"
 
 sleep infinity &
