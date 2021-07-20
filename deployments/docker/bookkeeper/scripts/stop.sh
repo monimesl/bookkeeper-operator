@@ -25,41 +25,25 @@ function killBookie() {
   lsof -i :"$BK_PORT" | grep LISTEN | awk '{print $2}' | xargs kill 2>/dev/null
 }
 
-function maybeDecommissionBookie() {
+function decommissionBookie() {
   set +e
-  echo "Syncing and fetching the size of the cluster $CLUSTER_NAME"
-  SIZE=""
-  for ((i = 0; i < 15; i++)); do
-    SYNC=$(zk-shell "$ZK_URL" --run-once "sync $CLUSTER_META_SIZE_NODE_PATH")
-    if [[ -z "${SYNC}" ]]; then
-      SIZE=$(zk-shell "$ZK_URL" --run-once "get $CLUSTER_META_SIZE_NODE_PATH")
-      break
+  retries=0
+  while [ $retries -lt 3 ]; do
+    echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME. retries=$retries"
+    /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
+    # shellcheck disable=SC2181
+    if [[ $? -eq 0 ]]; then
+      return
     fi
-    echo "Failed to connect. Retrying($i) after 2 seconds"
-    SIZE=""
+    retries=$((retries + 1))
     sleep 2
   done
-  echo "Cluster current SIZE=$SIZE, myid=$MY_ORDINAL"
-
-  # Since we're using kubernetes statefulset to start the bookie in an ordered fashion,
-  # the cluster size at any arbitrary normal point in time equals the highest `myid`.
-  # which is 1 increment of the ordinal of the pod running the container. On cluster
-  # down scaling($SIZE reduction), the pod with the highest ordinal hence `myid` is deleted.
-  # This means any bookie whose ordinal is >= the current cluster size is being
-  # permanently removed from the ensemble
-  if [[ -n "$SIZE" && "$MY_ORDINAL" -ge "$SIZE" ]]; then
-    echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME"
-    /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
-    zk-shell "$ZK_URL" --run-once "set $CLUSTER_META_UPDATE_TIME_NODE_PATH '$(($(date +%s%N) / 1000000))'"
-  fi
   set -e
 }
 
 killBookie
 
-sleep 2
-
-maybeDecommissionBookie
+decommissionBookie
 
 echo "Eager kill the process keeping the docker runtime instead of waiting for kubernetes 'TerminationGracePeriodSeconds'"
 

@@ -199,7 +199,7 @@ type Persistence struct {
 
 func (in *Persistence) setDefault() (changed bool) {
 	if in.ReclaimPolicy != VolumeReclaimPolicyDelete && in.ReclaimPolicy != VolumeReclaimPolicyRetain {
-		in.ReclaimPolicy = VolumeReclaimPolicyRetain
+		in.ReclaimPolicy = VolumeReclaimPolicyDelete
 		changed = true
 	}
 	if in.JournalVolumeClaimSpec == nil {
