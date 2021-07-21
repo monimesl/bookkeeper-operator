@@ -151,7 +151,7 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
 		Env:             c.Spec.Env,
-		Command: []string{"/bin/sh", "/scripts/stop.sh"},
+		Command: []string{"/bin/sh", "/scripts/init.sh"},
 	}
 	container := v12.Container{
 		Name:            "bookkeeper",
