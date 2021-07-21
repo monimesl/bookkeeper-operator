@@ -29,6 +29,8 @@ printf "Starting the bookie in the background.\n"
 # wait for the bookie to initialize
 waitBookieInit
 
+sleep 2 # sleep briefly before sanity test
+
 # perform sanity check on the bookie
 performSanityTest
 

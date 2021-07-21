@@ -53,10 +53,9 @@ func DeleteMetadata(cluster *v1alpha1.BookkeeperCluster) error {
 		return err
 	} else {
 		defer cl.Close()
-		clusterNode := clusterNode(cluster)
-		sizeNode := clusterSizeNode(cluster)
-		updateTimeNode := clusterUpdateTimeNode(cluster)
-		return cl.deleteNodes(updateTimeNode, sizeNode, clusterNode, cluster.ZkRootPath())
+		clusterRootNode := cluster.ZkRootPath()
+		clusterMetadataNode := clusterNode(cluster)
+		return cl.deleteNodes(clusterMetadataNode, clusterRootNode)
 	}
 }
 
@@ -170,18 +169,20 @@ func (c *Client) deleteNode(path string) error {
 		Info("Deleting the zookeeper node",
 			"zNode", path)
 	_, stat, err := c.getNode(path)
+	if err == zk.ErrNoNode {
+		return nil
+	} else if err != nil {
+		return err
+	}
+	err = c.conn.Delete(path, stat.Version)
 	if err == zk.ErrNotEmpty {
 		children, err := c.getChildren(path)
 		if err != nil {
 			return err
 		}
 		return c.deleteNodes(children...)
-	} else if err == zk.ErrNoNode {
-		return nil
-	} else if err != nil {
-		return err
 	}
-	return c.conn.Delete(path, stat.Version)
+	return err
 }
 
 func (c *Client) getChildren(path string) ([]string, error) {
