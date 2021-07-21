@@ -119,11 +119,6 @@ func (in *BookkeeperCluster) ZkLedgersRootPath() string {
 	return fmt.Sprintf("%s/ledgers", in.ZkRootPath())
 }
 
-// IsAdminServerEnabled checks if the http admin server is enabled
-func (in *BookkeeperCluster) IsAdminServerEnabled() bool {
-	return in.Spec.Ports.Admin > 0
-}
-
 // ShouldDeleteStorage returns whether the PV should should be deleted or not
 func (in *BookkeeperCluster) ShouldDeleteStorage() bool {
 	return in.Spec.Persistence.ReclaimPolicy == VolumeReclaimPolicyDelete

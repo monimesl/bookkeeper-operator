@@ -127,11 +127,7 @@ func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]stri
 func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	containerPorts := []v12.ContainerPort{
 		{Name: v1alpha1.ClientPortName, ContainerPort: c.Spec.Ports.Bookie},
-	}
-	if c.IsAdminServerEnabled() {
-		containerPorts = append(containerPorts,
-			v12.ContainerPort{Name: v1alpha1.AdminPortName, ContainerPort: c.Spec.Ports.Admin},
-		)
+		{Name: v1alpha1.AdminPortName, ContainerPort: c.Spec.Ports.Admin},
 	}
 	environment := []v12.EnvFromSource{
 		{

@@ -62,7 +62,7 @@ func DeleteMetadata(cluster *v1alpha1.BookkeeperCluster) error {
 
 //NewZkClient creates a new zookeeper client connected to the specified cluster
 func NewZkClient(cluster *v1alpha1.BookkeeperCluster) (*Client, error) {
-	address := cluster.Spec.ZookeeperUrl
+	address := cluster.Spec.ZkServers
 	c, _, err := zk.Connect([]string{address}, 10*time.Second)
 	if err != nil {
 		return nil, err

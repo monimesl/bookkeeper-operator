@@ -58,17 +58,19 @@ func ReconcileConfigMap(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 	jvmOptions := cluster.Spec.JVMOptions
 	excludedOptions := []string{
-		"BK_zkServers", "BK_zkLedgersRootPath", "BK_httpServerPort", "BOOKIE_GC_OPTS",
-		"BOOKIE_MEM_OPTS", "BOOKIE_EXTRA_OPTS", "BOOKIE_GC_LOGGING_OPTS",
+		"BK_zkServers", "BK_zkLedgersRootPath", "BK_httpServerEnabled", "BK_httpServerPort",
+		"BOOKIE_PORT", "BOOKIE_GC_OPTS", "BOOKIE_MEM_OPTS", "BOOKIE_EXTRA_OPTS", "BOOKIE_GC_LOGGING_OPTS",
 	}
 	data := map[string]string{
+		"BK_httpServerEnabled":          "true",
 		"BK_useHostNameAsBookieID":      "true",
 		"BK_autoRecoveryDaemonEnabled":  "true",
-		"BK_httpServerEnabled":          "false",
 		"BK_lostBookieRecoveryDelay":    "60",
-		"BK_zkServers":                  cluster.Spec.ZookeeperUrl,
+		"BK_zkServers":                  cluster.Spec.ZkServers,
 		"BK_CLUSTER_ROOT_PATH":          cluster.ZkRootPath(),
 		"BK_zkLedgersRootPath":          cluster.ZkLedgersRootPath(),
+		"BK_httpServerPort":             fmt.Sprintf("%d", cluster.Spec.Ports.Admin),
+		"BOOKIE_PORT":                   fmt.Sprintf("%d", cluster.Spec.Ports.Bookie),
 		"BOOKIE_GC_OPTS":                strings.Join(jvmOptions.Gc, " "),
 		"BOOKIE_MEM_OPTS":               strings.Join(jvmOptions.Memory, " "),
 		"BOOKIE_EXTRA_OPTS":             strings.Join(jvmOptions.Extra, " "),
@@ -76,17 +78,13 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		"CLUSTER_NAME":                  cluster.GetName(),
 		"CLUSTER_METADATA_PARENT_ZNODE": zk.ClusterMetadataParentZNode,
 	}
-	if cluster.IsAdminServerEnabled() {
-		data["BK_httpServerEnabled"] = "true"
-		data["BK_httpServerPort"] = fmt.Sprintf("%d", cluster.Spec.Ports.Admin)
-	}
 	for k, v := range cluster.Spec.Configs {
+		if !strings.HasPrefix(k, "BK_") {
+			k = fmt.Sprintf("BK_%s", k)
+		}
 		if oputil.Contains(excludedOptions, k) {
 			log.Warnf("ignoring the config: %s", k)
 			continue
-		}
-		if !strings.HasPrefix(k, "BK_") {
-			k = fmt.Sprintf("BK_%s", k)
 		}
 		data[k] = v
 	}

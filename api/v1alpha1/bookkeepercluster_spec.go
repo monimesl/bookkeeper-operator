@@ -75,7 +75,6 @@ type BookkeeperClusterSpec struct {
 	// ImagePullPolicy describes a policy for if/when to pull the image
 	// +optional
 	ImagePullPolicy v1.PullPolicy `json:"imagePullPolicy,omitempty"`
-	// +kubebuilder:validation:Required
 	// +kubebuilder:validation:Minimum=0
 	Size *int32 `json:"size,omitempty"`
 	// MaxUnavailableNodes defines the maximum number of nodes that
@@ -83,11 +82,11 @@ type BookkeeperClusterSpec struct {
 	// Default is 1.
 	// +optional
 	MaxUnavailableNodes int32 `json:"maxUnavailableNodes"`
-	// ZookeeperUrl specifies the hostname/IP address and port in the format "hostname:port".
+	// ZkServers specifies the hostname/IP address and port in the format "hostname:port".
 	// +kubebuilder:validation:Required
-	ZookeeperUrl string       `json:"zookeeperUrl"`
-	Directories  *Directories `json:"directories,omitempty"`
-	Ports        *Ports       `json:"ports,omitempty"`
+	ZkServers   string       `json:"zkServers"`
+	Directories *Directories `json:"directories,omitempty"`
+	Ports       *Ports       `json:"ports,omitempty"`
 	// EnableAutoRecovery indicates whether or not BookKeeper auto recovery is enabled.
 	// Defaults to true.
 	// +optional
@@ -122,8 +121,10 @@ type BookkeeperClusterSpec struct {
 }
 
 type Ports struct {
+	// +kubebuilder:validation:Minimum=0
 	Bookie int32 `json:"bookie,omitempty"`
-	Admin  int32 `json:"admin,omitempty"`
+	// +kubebuilder:validation:Minimum=0
+	Admin int32 `json:"admin,omitempty"`
 }
 
 func (in *Ports) setDefaults() (changed bool) {
