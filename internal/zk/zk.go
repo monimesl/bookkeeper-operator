@@ -181,7 +181,7 @@ func (c *Client) deleteNode(path string) error {
 			return err2
 		}
 		for i, child := range children {
-			children[i] = path + " / " + child
+			children[i] = path + "/" + child
 		}
 		err2 = c.deleteNodes(children...)
 		if err2 != nil {
