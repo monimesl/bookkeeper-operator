@@ -58,10 +58,11 @@ func ReconcileConfigMap(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 	jvmOptions := cluster.Spec.JVMOptions
 	excludedOptions := []string{
-		"BK_zkServers", "BK_zkLedgersRootPath", "BK_httpServerEnabled", "BK_httpServerPort",
+		"BK_zkServers", "BK_zkLedgersRootPath", "BK_httpServerEnabled", "BK_httpServerPort", "BK_enableStatistics",
 		"BOOKIE_PORT", "BOOKIE_GC_OPTS", "BOOKIE_MEM_OPTS", "BOOKIE_EXTRA_OPTS", "BOOKIE_GC_LOGGING_OPTS",
 	}
 	data := map[string]string{
+		"BK_enableStatistics":           "false",
 		"BK_httpServerEnabled":          "true",
 		"BK_useHostNameAsBookieID":      "true",
 		"BK_autoRecoveryDaemonEnabled":  "true",
@@ -78,7 +79,11 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		"CLUSTER_NAME":                  cluster.GetName(),
 		"CLUSTER_METADATA_PARENT_ZNODE": zk.ClusterMetadataParentZNode,
 	}
-	for k, v := range cluster.Spec.Configs {
+	if cluster.Spec.MetricConfig != nil {
+		data["BK_enableStatistics"] = "true"
+		data["BK_statsProviderClass"] = "org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider"
+	}
+	for k, v := range cluster.Spec.BkConfig {
 		if !strings.HasPrefix(k, "BK_") {
 			k = fmt.Sprintf("BK_%s", k)
 		}

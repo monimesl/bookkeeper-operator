@@ -95,11 +95,13 @@ func createService(c *v1alpha1.BookkeeperCluster, name string, hasClusterIp bool
 	if !hasClusterIp {
 		clusterIp = v1.ClusterIPNone
 	}
-	return service.New(c.Namespace, name, labels, v1.ServiceSpec{
+	srv := service.New(c.Namespace, name, labels, v1.ServiceSpec{
 		ClusterIP: clusterIp,
 		Selector:  labels,
 		Ports:     servicePorts,
 	})
+	srv.Annotations = c.Spec.Annotations
+	return srv
 }
 
 func servicePorts(c *v1alpha1.BookkeeperCluster) []v1.ServicePort {

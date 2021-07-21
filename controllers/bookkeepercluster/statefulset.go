@@ -204,7 +204,7 @@ func createPreStopHandler() *v12.Handler {
 }
 
 func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	return spec.Probes.Startup.ToK8sProbe(v12.Handler{
+	return spec.ProbeConfig.Startup.ToK8sProbe(v12.Handler{
 		HTTPGet: &v12.HTTPGetAction{
 			Port: intstr.FromInt(int(spec.Ports.Admin)),
 			Path: "/api/v1/bookie/is_ready",
@@ -213,7 +213,7 @@ func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 }
 
 func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	return spec.Probes.Readiness.ToK8sProbe(v12.Handler{
+	return spec.ProbeConfig.Readiness.ToK8sProbe(v12.Handler{
 		HTTPGet: &v12.HTTPGetAction{
 			Port: intstr.FromInt(int(spec.Ports.Admin)),
 			Path: "/api/v1/bookie/is_ready",
@@ -222,7 +222,7 @@ func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 }
 
 func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	return spec.Probes.Liveness.ToK8sProbe(v12.Handler{
+	return spec.ProbeConfig.Liveness.ToK8sProbe(v12.Handler{
 		HTTPGet: &v12.HTTPGetAction{
 			Port: intstr.FromInt(int(spec.Ports.Admin)),
 			Path: "/heartbeat",

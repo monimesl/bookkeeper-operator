@@ -54,8 +54,8 @@ func DeleteMetadata(cluster *v1alpha1.BookkeeperCluster) error {
 	} else {
 		defer cl.Close()
 		clusterRootNode := cluster.ZkRootPath()
-		clusterMetadataNode := clusterNode(cluster)
-		return cl.deleteNodes(clusterMetadataNode, clusterRootNode)
+		rootMetadataZNode := clusterNode(cluster)
+		return cl.deleteNodes(rootMetadataZNode, clusterRootNode)
 	}
 }
 

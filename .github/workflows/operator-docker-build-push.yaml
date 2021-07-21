@@ -54,9 +54,9 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-      - name: Run Tests
+      - name: Prepare
         run: |
-          make test
+          make generate test manifests
 
       - name: Build Helm and Manifest
         id: helm
@@ -93,9 +93,6 @@ jobs:
           target-branch: main
         env:
           API_TOKEN_GITHUB: ${{ secrets.ACCESS_TOKEN_GITHUB }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1

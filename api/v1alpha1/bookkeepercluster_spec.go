@@ -21,6 +21,7 @@ import (
 	"github.com/monimesl/operator-helper/basetype"
 	"github.com/monimesl/operator-helper/k8s"
 	"github.com/monimesl/operator-helper/k8s/pod"
+	"github.com/monimesl/operator-helper/operator/prometheus"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
@@ -55,8 +56,10 @@ const (
 )
 
 const (
-	AdminPortName  = "admin-port"
-	ClientPortName = "client-port"
+	AdminPortName          = "admin-port"
+	ClientPortName         = "client-port"
+	ServiceMetricsPortName = AdminPortName
+	ServiceMetricsPath     = "/metrics"
 )
 
 var (
@@ -95,14 +98,19 @@ type BookkeeperClusterSpec struct {
 	// If unspecified, a reasonable defaults will be set
 	// +optional
 	JVMOptions *JVMOptions `json:"jvmOptions"`
-	// Configs defines the Bookkeeper configurations to override the bk_server.conf
+	// BkConfig defines the Bookkeeper configurations to override the bk_server.conf
 	// https://github.com/apache/bookkeeper/tree/master/docker#configuration
 	// +optional
-	Configs map[string]string `json:"configs"`
+	BkConfig map[string]string `json:"bkConf"`
 	// PodConfig defines common configuration for the bookkeeper pods
-	PodConfig basetype.PodConfig `json:"pod,omitempty"`
-	// Probes defines the probing settings for the bookkeeper containers
-	Probes *pod.Probes `json:"probes,omitempty"`
+	// +optional
+	PodConfig basetype.PodConfig `json:"podConfig,omitempty"`
+	// ProbeConfig defines the probing settings for the bookkeeper containers
+	// +optional
+	ProbeConfig *pod.Probes `json:"probeConfig,omitempty"`
+	// MetricConfig
+	// +optional
+	MetricConfig *prometheus.MetricSpec `json:"metricConfig,omitempty"`
 	// Env defines environment variables for the bookkeeper statefulset pods
 	Env []v1.EnvVar `json:"env,omitempty"`
 	// Persistence configures your node storage
@@ -112,7 +120,7 @@ type BookkeeperClusterSpec struct {
 	// Labels defines the labels to attach to the bookkeeper deployment
 	Labels map[string]string `json:"labels,omitempty"`
 
-	// Annotations defines the annotations to attach to the bookkeeper deployment
+	// Annotations defines the annotations to attach to the bookkeeper statefulset and services
 	Annotations map[string]string `json:"annotations,omitempty"`
 
 	// ClusterDomain defines the cluster domain for the cluster
@@ -263,8 +271,8 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 		value := true
 		in.EnableAutoRecovery = &value
 	}
-	if in.Configs == nil {
-		in.Configs = map[string]string{}
+	if in.BkConfig == nil {
+		in.BkConfig = map[string]string{}
 	}
 	if in.Directories == nil {
 		changed = true
@@ -293,11 +301,11 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 	} else if in.Ports.setDefaults() {
 		changed = true
 	}
-	if in.Probes == nil {
+	if in.ProbeConfig == nil {
 		changed = true
-		in.Probes = &pod.Probes{}
-		in.Probes.SetDefault()
-	} else if in.Probes.SetDefault() {
+		in.ProbeConfig = &pod.Probes{}
+		in.ProbeConfig.SetDefault()
+	} else if in.ProbeConfig.SetDefault() {
 		changed = true
 	}
 	if in.JVMOptions == nil {
