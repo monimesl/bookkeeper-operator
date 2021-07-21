@@ -176,14 +176,18 @@ func (c *Client) deleteNode(path string) error {
 	}
 	err = c.conn.Delete(path, stat.Version)
 	if err == zk.ErrNotEmpty {
-		children, err := c.getChildren(path)
-		if err != nil {
-			return err
+		children, err2 := c.getChildren(path)
+		if err2 != nil {
+			return err2
 		}
 		for i, child := range children {
 			children[i] = path + " / " + child
 		}
-		return c.deleteNodes(children...)
+		err2 = c.deleteNodes(children...)
+		if err2 != nil {
+			return err2
+		}
+		return c.deleteNode(path)
 	}
 	return err
 }
