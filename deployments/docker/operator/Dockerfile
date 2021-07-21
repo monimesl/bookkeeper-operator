@@ -26,13 +26,15 @@ COPY Makefile Makefile
 # and so that source changes don't invalidate our downloaded layer
 RUN go mod download
 
-RUN make generate
-
 # Copy the go source
 COPY main.go main.go
 COPY api api/
 COPY internal internal/
 COPY controllers controllers/
+
+# Run after copying so the files are generated into
+# the docker's api/ folder instead of the host
+RUN make generate
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o operator main.go
