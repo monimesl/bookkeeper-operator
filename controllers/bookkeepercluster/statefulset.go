@@ -207,7 +207,7 @@ func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 	return spec.Probes.Startup.ToK8sProbe(v12.Handler{
 		HTTPGet: &v12.HTTPGetAction{
 			Port: intstr.FromInt(int(spec.Ports.Admin)),
-			Path: " /api/v1/bookie/is_ready",
+			Path: "/api/v1/bookie/is_ready",
 		},
 	})
 }
@@ -216,7 +216,7 @@ func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 	return spec.Probes.Readiness.ToK8sProbe(v12.Handler{
 		HTTPGet: &v12.HTTPGetAction{
 			Port: intstr.FromInt(int(spec.Ports.Admin)),
-			Path: " /api/v1/bookie/is_ready",
+			Path: "/api/v1/bookie/is_ready",
 		},
 	})
 }

@@ -180,6 +180,9 @@ func (c *Client) deleteNode(path string) error {
 		if err != nil {
 			return err
 		}
+		for i, child := range children {
+			children[i] = path + " / " + child
+		}
 		return c.deleteNodes(children...)
 	}
 	return err
