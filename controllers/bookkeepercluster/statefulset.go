@@ -144,6 +144,15 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	image := c.Image()
 	volumes := make([]v12.Volume, 0)
 	volumeMounts := createVolumeMounts(c.Spec.Directories)
+	init := v12.Container{
+		Name:            "bookkeeper-init",
+		EnvFrom:         environment,
+		VolumeMounts:    volumeMounts,
+		Image:           image.ToString(),
+		ImagePullPolicy: image.PullPolicy,
+		Env:             c.Spec.Env,
+		Command: []string{"/bin/sh", "/scripts/stop.sh"},
+	}
 	container := v12.Container{
 		Name:            "bookkeeper",
 		EnvFrom:         environment,
@@ -157,7 +166,7 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Lifecycle:       &v12.Lifecycle{PreStop: createPreStopHandler()},
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.Env...),
 	}
-	spec := pod.NewSpec(c.Spec.PodConfig, volumes, nil, []v12.Container{container})
+	spec := pod.NewSpec(c.Spec.PodConfig, volumes, []v12.Container{init}, []v12.Container{container})
 	spec.TerminationGracePeriodSeconds = c.Spec.PodConfig.TerminationGracePeriodSeconds
 	return spec
 }
