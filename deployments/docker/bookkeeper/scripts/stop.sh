@@ -38,6 +38,10 @@ function decommissionBookie() {
     retries=$((retries + 1))
     sleep 2
   done
+  if [[ $MY_ORDINAL -eq 0 ]]; then
+    echo "Formatting the bookie with ordinal $MY_ORDINAL"
+    /opt/bookkeeper/bin/bookkeeper shell bookieformat -nonInteractive -force -deleteCookie
+  fi
   set -e
 }
 

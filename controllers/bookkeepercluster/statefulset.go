@@ -29,6 +29,7 @@ import (
 	v12 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"strconv"
 	"strings"
 )
@@ -145,24 +146,24 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	volumes := make([]v12.Volume, 0)
 	volumeMounts := createVolumeMounts(c.Spec.Directories)
 	init := v12.Container{
-		Name:            "bookkeeper-init",
+		Name:            "bk-init",
 		EnvFrom:         environment,
 		VolumeMounts:    volumeMounts,
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
 		Env:             c.Spec.Env,
-		Command: []string{"/bin/sh", "/scripts/init.sh"},
+		Command:         []string{"/bin/sh", "/scripts/init.sh"},
 	}
 	container := v12.Container{
-		Name:            "bookkeeper",
+		Name:            "bk-server",
 		EnvFrom:         environment,
 		VolumeMounts:    volumeMounts,
 		Ports:           containerPorts,
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
-		StartupProbe:    createStartupProbe(c.Spec.Probes.Startup),
-		LivenessProbe:   createLivenessProbe(c.Spec.Probes.Liveness),
-		ReadinessProbe:  createReadinessProbe(c.Spec.Probes.Readiness),
+		StartupProbe:    createStartupProbe(c.Spec),
+		LivenessProbe:   createLivenessProbe(c.Spec),
+		ReadinessProbe:  createReadinessProbe(c.Spec),
 		Lifecycle:       &v12.Lifecycle{PreStop: createPreStopHandler()},
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.Env...),
 	}
@@ -206,26 +207,29 @@ func createPreStopHandler() *v12.Handler {
 	}}
 }
 
-func createStartupProbe(probe *pod.Probe) *v12.Probe {
-	return probe.ToK8sProbe(v12.Handler{
-		Exec: &v12.ExecAction{
-			Command: []string{"/bin/sh", "-c", "/scripts/probeStartup.sh"},
+func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
+	return spec.Probes.Startup.ToK8sProbe(v12.Handler{
+		HTTPGet: &v12.HTTPGetAction{
+			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Path: " /api/v1/bookie/is_ready",
 		},
 	})
 }
 
-func createReadinessProbe(probe *pod.Probe) *v12.Probe {
-	return probe.ToK8sProbe(v12.Handler{
-		Exec: &v12.ExecAction{
-			Command: []string{"/bin/sh", "-c", "/scripts/probeReadiness.sh"},
+func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
+	return spec.Probes.Readiness.ToK8sProbe(v12.Handler{
+		HTTPGet: &v12.HTTPGetAction{
+			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Path: " /api/v1/bookie/is_ready",
 		},
 	})
 }
 
-func createLivenessProbe(probe *pod.Probe) *v12.Probe {
-	return probe.ToK8sProbe(v12.Handler{
-		Exec: &v12.ExecAction{
-			Command: []string{"/bin/sh", "-c", "/scripts/probeLiveness.sh"},
+func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
+	return spec.Probes.Liveness.ToK8sProbe(v12.Handler{
+		HTTPGet: &v12.HTTPGetAction{
+			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Path: "/heartbeat",
 		},
 	})
 }

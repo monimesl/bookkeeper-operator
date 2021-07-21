@@ -34,7 +34,7 @@ performSanityTest
 
 printf "Probing whether the bookie is alive\n"
 
-/scripts/probeLiveness.sh
+netstat -ltn 2>/dev/null | grep "$BK_PORT"
 
 printf "The bookie was successfully started. 👍 \n"
 

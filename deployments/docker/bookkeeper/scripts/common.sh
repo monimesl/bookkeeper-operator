@@ -76,5 +76,5 @@ function waitBookieInit() {
 }
 
 function performSanityTest() {
-  eval "/scripts/sanityTest.sh"
+  /opt/bookkeeper/bin/bookkeeper shell bookiesanity
 }

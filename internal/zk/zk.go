@@ -56,7 +56,7 @@ func DeleteMetadata(cluster *v1alpha1.BookkeeperCluster) error {
 		clusterNode := clusterNode(cluster)
 		sizeNode := clusterSizeNode(cluster)
 		updateTimeNode := clusterUpdateTimeNode(cluster)
-		return cl.deleteNodes(updateTimeNode, sizeNode, clusterNode)
+		return cl.deleteNodes(updateTimeNode, sizeNode, clusterNode, cluster.ZkRootPath())
 	}
 }
 
@@ -166,12 +166,28 @@ func (c *Client) deleteNodes(paths ...string) error {
 }
 
 func (c *Client) deleteNode(path string) error {
+	config.RequireRootLogger().
+		Info("Deleting the zookeeper node",
+			"zNode", path)
 	_, stat, err := c.getNode(path)
-	if err != nil && err != zk.ErrNoNode {
+	if err == zk.ErrNotEmpty {
+		children, err := c.getChildren(path)
+		if err != nil {
+			return err
+		}
+		return c.deleteNodes(children...)
+	} else if err == zk.ErrNoNode {
+		return nil
+	} else if err != nil {
 		return err
 	}
-	if stat != nil {
-		return c.conn.Delete(path, stat.Version)
+	return c.conn.Delete(path, stat.Version)
+}
+
+func (c *Client) getChildren(path string) ([]string, error) {
+	children, _, err := c.conn.Children(path)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return children, nil
 }
