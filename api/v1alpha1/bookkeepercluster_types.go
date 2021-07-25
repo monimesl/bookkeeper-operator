@@ -104,11 +104,6 @@ func (in *BookkeeperCluster) ClientServiceFQDN() string {
 	return fmt.Sprintf("%s.%s.svc.%s", in.ClientServiceName(), in.Namespace, in.Spec.ClusterDomain)
 }
 
-// HeadlessServiceFQDN defines the FQDN of the headless service object
-func (in *BookkeeperCluster) HeadlessServiceFQDN() string {
-	return fmt.Sprintf("%s.%s.svc.%s", in.HeadlessServiceName(), in.Namespace, in.Spec.ClusterDomain)
-}
-
 // ZkRootPath the zk root of this bookkeeper cluster
 func (in *BookkeeperCluster) ZkRootPath() string {
 	return fmt.Sprintf("/bookkeeper/%s", in.Name)

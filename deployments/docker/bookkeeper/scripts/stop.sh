@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-set -e -x -m
+set -e -x
 
 source /scripts/common.sh >/dev/null
 
