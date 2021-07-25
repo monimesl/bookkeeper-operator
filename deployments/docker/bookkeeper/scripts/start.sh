@@ -45,6 +45,4 @@ PID=$! && JOB=$(jobs -l | grep $PID | cut -d"[" -f2 | cut -d"]" -f1)
 
 echo "$PID" >sleep.pid
 
-createNodeReadinessFile
-
 fg "$JOB"
