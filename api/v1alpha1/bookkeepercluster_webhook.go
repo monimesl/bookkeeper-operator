@@ -23,6 +23,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
+// SetupWebhookWithManager needed for webhook test suite
+
 func (in *BookkeeperCluster) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(in).
