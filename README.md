@@ -108,7 +108,7 @@ metadata:
   name: cluster-1
   namespace: bookkeeper
 spec:
-  zookeeperUrl: "cluster-1-zk-headless.zookeeper.svc.cluster.local:2181"
+  zkServers: "cluster-1-zk-headless.zookeeper.svc.cluster.local:2181"
   size: 3
 ```
 
@@ -123,6 +123,6 @@ metadata:
   name: cluster-1
   namespace: bookkeeper
 spec:
-  zookeeperUrl: "cluster-1-zk-headless.zookeeper.svc.cluster.local:2181"
+  zkServers: "cluster-1-zk-headless.zookeeper.svc.cluster.local:2181"
   size: 5 # scale out
 ```
