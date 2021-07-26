@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
+	"github.com/monimesl/operator-helper/k8s/annotation"
 	"github.com/monimesl/operator-helper/k8s/pod"
 	"github.com/monimesl/operator-helper/k8s/pvc"
 	"github.com/monimesl/operator-helper/k8s/statefulset"
@@ -115,9 +116,14 @@ func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 	labels := c.CreateLabels(true, nil)
 	templateSpec := createPodTemplateSpec(c, labels)
 	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(), labels, pvcs, templateSpec)
-	s := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
-	s.Annotations = c.Spec.Annotations
-	return s
+	sts := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
+	annotations := c.Spec.Annotations
+	if c.Spec.MonitoringConfig.Enabled {
+		annotations = annotation.DecorateForPrometheus(
+			annotations, true, int(c.Spec.Ports.Admin))
+	}
+	sts.Annotations = annotations
+	return sts
 }
 
 func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string) v12.PodTemplateSpec {

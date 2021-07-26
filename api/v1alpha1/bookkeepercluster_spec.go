@@ -108,9 +108,9 @@ type BookkeeperClusterSpec struct {
 	// ProbeConfig defines the probing settings for the bookkeeper containers
 	// +optional
 	ProbeConfig *pod.Probes `json:"probeConfig,omitempty"`
-	// MetricConfig
+	// MonitoringConfig
 	// +optional
-	MetricConfig *prometheus.MetricSpec `json:"metricConfig,omitempty"`
+	MonitoringConfig prometheus.MonitoringConfig `json:"monitoringConfig,omitempty"`
 	// Env defines environment variables for the bookkeeper statefulset pods
 	Env []v1.EnvVar `json:"env,omitempty"`
 	// Persistence configures your node storage
@@ -129,9 +129,9 @@ type BookkeeperClusterSpec struct {
 }
 
 type Ports struct {
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	Bookie int32 `json:"bookie,omitempty"`
-	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Minimum=1
 	Admin int32 `json:"admin,omitempty"`
 }
 

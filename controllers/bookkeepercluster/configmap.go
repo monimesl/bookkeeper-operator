@@ -79,7 +79,7 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		"CLUSTER_NAME":                  cluster.GetName(),
 		"CLUSTER_METADATA_PARENT_ZNODE": zk.ClusterMetadataParentZNode,
 	}
-	if cluster.Spec.MetricConfig != nil {
+	if cluster.Spec.MonitoringConfig.Enabled {
 		data["BK_enableStatistics"] = "true"
 		data["BK_statsProviderClass"] = "org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider"
 	}
