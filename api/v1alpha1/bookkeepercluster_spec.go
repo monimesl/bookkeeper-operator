@@ -24,6 +24,7 @@ import (
 	"github.com/monimesl/operator-helper/operator/prometheus"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
+	"strings"
 )
 
 const (
@@ -97,7 +98,7 @@ type BookkeeperClusterSpec struct {
 	// JVMOptions defines the JVM options for bookkeeper; this is useful for performance tuning.
 	// If unspecified, a reasonable defaults will be set
 	// +optional
-	JVMOptions *JVMOptions `json:"jvmOptions"`
+	JVMOptions JVMOptions `json:"jvmOptions"`
 	// BkConfig defines the Bookkeeper configurations to override the bk_server.conf
 	// https://github.com/apache/bookkeeper/tree/master/docker#configuration
 	// +optional
@@ -171,11 +172,18 @@ type JVMOptions struct {
 func (in *JVMOptions) setDefaults() (changed bool) {
 	if in.Memory == nil {
 		changed = true
-		in.Memory = []string{}
+		in.Memory = []string{
+			"-Xms128m", "-Xmx256m", "-XX:MaxDirectMemorySize=256m",
+		}
 	}
 	if in.Gc == nil {
 		changed = true
-		in.Gc = []string{}
+		in.Gc = strings.Split(
+			"-XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled "+
+				"-XX:+UnlockExperimentalVMOptions -XX:+DoEscapeAnalysis -verbosegc "+
+				"-XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC "+
+				"-XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem -Xlog:gc* ",
+			" ")
 	}
 	if in.GcLogging == nil {
 		changed = true
@@ -183,7 +191,10 @@ func (in *JVMOptions) setDefaults() (changed bool) {
 	}
 	if in.Extra == nil {
 		changed = true
-		in.Extra = []string{}
+		in.Extra = strings.Split(
+			"-Dio.netty.leakDetectionLevel=disabled "+
+				"-Dio.netty.recycler.maxCapacity.default=1000 "+
+				"-Dio.netty.recycler.linkCapacity=1024", " ")
 	}
 	return
 }
@@ -307,10 +318,6 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 		in.ProbeConfig.SetDefault()
 	} else if in.ProbeConfig.SetDefault() {
 		changed = true
-	}
-	if in.JVMOptions == nil {
-		changed = true
-		in.JVMOptions = &JVMOptions{}
 	}
 	if in.JVMOptions.setDefaults() {
 		changed = true

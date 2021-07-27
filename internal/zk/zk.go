@@ -26,10 +26,8 @@ import (
 )
 
 const (
-	// ClusterMetadataParentZNode defines the znode to store metadata for the BookkeeperCluster objects
-	ClusterMetadataParentZNode = "/bookkeeper-operator-cluster-metadata"
-	updateTimeNode             = "update-time"
-	sizeNode                   = "size"
+	updateTimeNode = "updatedat"
+	sizeNode       = "size"
 )
 
 type Client struct {
@@ -90,7 +88,7 @@ func (c *Client) Close() {
 }
 
 func clusterNode(cluster *v1alpha1.BookkeeperCluster) string {
-	return fmt.Sprintf("%s/%s", ClusterMetadataParentZNode, cluster.GetName())
+	return fmt.Sprintf("%s", cluster.ZkRootPath())
 }
 
 func clusterSizeNode(cluster *v1alpha1.BookkeeperCluster) string {
@@ -99,13 +97,6 @@ func clusterSizeNode(cluster *v1alpha1.BookkeeperCluster) string {
 
 func clusterUpdateTimeNode(cluster *v1alpha1.BookkeeperCluster) string {
 	return fmt.Sprintf("%s/%s", clusterNode(cluster), updateTimeNode)
-}
-
-func (c *Client) createRequiredNodes() (err error) {
-	if !c.requiredNodesCreated {
-		_ = c.setNodeData(ClusterMetadataParentZNode, nil)
-	}
-	return
 }
 
 func (c *Client) setNodeData(path string, data []byte) (err error) {

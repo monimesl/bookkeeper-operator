@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/bookkeeper-operator/internal/zk"
 	"github.com/monimesl/operator-helper/k8s/configmap"
 	"github.com/monimesl/operator-helper/oputil"
 	"github.com/monimesl/operator-helper/reconciler"
@@ -62,22 +61,25 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		"BOOKIE_PORT", "BOOKIE_GC_OPTS", "BOOKIE_MEM_OPTS", "BOOKIE_EXTRA_OPTS", "BOOKIE_GC_LOGGING_OPTS",
 	}
 	data := map[string]string{
-		"BK_enableStatistics":           "false",
-		"BK_httpServerEnabled":          "true",
-		"BK_useHostNameAsBookieID":      "true",
-		"BK_autoRecoveryDaemonEnabled":  "true",
-		"BK_lostBookieRecoveryDelay":    "60",
-		"BK_zkServers":                  cluster.Spec.ZkServers,
-		"BK_CLUSTER_ROOT_PATH":          cluster.ZkRootPath(),
-		"BK_zkLedgersRootPath":          cluster.ZkLedgersRootPath(),
-		"BK_httpServerPort":             fmt.Sprintf("%d", cluster.Spec.Ports.Admin),
-		"BOOKIE_PORT":                   fmt.Sprintf("%d", cluster.Spec.Ports.Bookie),
-		"BOOKIE_GC_OPTS":                strings.Join(jvmOptions.Gc, " "),
-		"BOOKIE_MEM_OPTS":               strings.Join(jvmOptions.Memory, " "),
-		"BOOKIE_EXTRA_OPTS":             strings.Join(jvmOptions.Extra, " "),
-		"BOOKIE_GC_LOGGING_OPTS":        strings.Join(jvmOptions.GcLogging, " "),
-		"CLUSTER_NAME":                  cluster.GetName(),
-		"CLUSTER_METADATA_PARENT_ZNODE": zk.ClusterMetadataParentZNode,
+		"BK_enableStatistics":          "false",
+		"BK_httpServerEnabled":         "true",
+		"BK_useHostNameAsBookieID":     "true",
+		"BK_autoRecoveryDaemonEnabled": "true",
+		"BK_lostBookieRecoveryDelay":   "60",
+		"BK_zkServers":                 cluster.Spec.ZkServers,
+		"BK_CLUSTER_ROOT_PATH":         cluster.ZkRootPath(),
+		"BK_zkLedgersRootPath":         cluster.ZkLedgersRootPath(),
+		"BK_httpServerPort":            fmt.Sprintf("%d", cluster.Spec.Ports.Admin),
+		"BOOKIE_PORT":                  fmt.Sprintf("%d", cluster.Spec.Ports.Bookie),
+		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L118
+		"BOOKIE_MEM_OPTS": strings.Join(jvmOptions.Memory, " "),
+		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L119
+		"BOOKIE_GC_OPTS": strings.Join(jvmOptions.Gc, " "),
+		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L120
+		"BOOKIE_GC_LOGGING_OPTS": strings.Join(jvmOptions.GcLogging, " "),
+		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/bookkeeper#L149
+		"BOOKIE_EXTRA_OPTS": strings.Join(jvmOptions.Extra, " "),
+		"CLUSTER_NAME":      cluster.GetName(),
 	}
 	if cluster.Spec.MonitoringConfig.Enabled {
 		data["BK_enableStatistics"] = "true"
