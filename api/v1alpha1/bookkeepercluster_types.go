@@ -23,7 +23,6 @@ import (
 	"github.com/monimesl/operator-helper/k8s"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"strings"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -68,15 +67,8 @@ func (in *BookkeeperCluster) CreateLabels(addPodLabels bool, more map[string]str
 	return in.Spec.createLabels(in.Name, addPodLabels, more)
 }
 
-func (in *BookkeeperCluster) nameHasBkIndicator() bool {
-	return strings.Contains(in.Name, "bk") || strings.Contains(in.Name, "bookkeeper")
-}
-
 func (in *BookkeeperCluster) generateName() string {
-	if in.nameHasBkIndicator() {
-		return in.Name
-	}
-	return fmt.Sprintf("%s-bk", in.GetName())
+	return fmt.Sprintf("%s", in.GetName())
 }
 
 // ConfigMapName defines the name of the configmap object
