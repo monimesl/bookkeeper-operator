@@ -16,7 +16,13 @@
 # limitations under the License.
 #
 
+BK_HOME=/opt/bookkeeper
+BINDIR=${BK_HOME}/bin
+BOOKKEEPER=${BINDIR}/bookkeeper
+SCRIPTS_DIR=${BK_HOME}/scripts
+
+export BOOKKEEPER SCRIPTS_DIR
 export PATH=$PATH:/opt/bookkeeper/bin
 
-source /opt/bookkeeper/scripts/init_bookie.sh && init_bookie
+source /opt/bookkeeper/scripts/init_bookie.sh
 init_bookie && /opt/bookkeeper/bin/bookkeeper bookie
