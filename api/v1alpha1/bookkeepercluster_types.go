@@ -68,7 +68,7 @@ func (in *BookkeeperCluster) CreateLabels(addPodLabels bool, more map[string]str
 }
 
 func (in *BookkeeperCluster) generateName() string {
-	return fmt.Sprintf("%s", in.GetName())
+	return in.GetName()
 }
 
 // ConfigMapName defines the name of the configmap object

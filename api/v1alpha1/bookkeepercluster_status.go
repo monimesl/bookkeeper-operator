@@ -25,8 +25,8 @@ type ConditionType string
 
 const (
 	ConditionClusterPreparing ConditionType = "Preparing"
-	ConditionClusterReady                   = "Ready"
-	ConditionClusterError                   = "Error"
+	ConditionClusterReady     ConditionType = "Ready"
+	ConditionClusterError     ConditionType = "Error"
 )
 
 // BookkeeperClusterStatus defines the observed state of BookkeeperCluster

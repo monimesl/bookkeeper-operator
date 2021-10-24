@@ -83,6 +83,8 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 	}
 	if cluster.Spec.MonitoringConfig.Enabled {
 		data["BK_enableStatistics"] = "true"
+		data["BK_prometheusStatsHttpAddress"] = "0.0.0.0"
+		data["BK_prometheusStatsHttpPort"] = fmt.Sprintf("%d", cluster.Spec.Ports.Metrics)
 		data["BK_statsProviderClass"] = "org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider"
 	}
 	for k, v := range cluster.Spec.BkConfig {

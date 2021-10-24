@@ -21,7 +21,6 @@ import (
 	"github.com/monimesl/operator-helper/basetype"
 	"github.com/monimesl/operator-helper/k8s"
 	"github.com/monimesl/operator-helper/k8s/pod"
-	"github.com/monimesl/operator-helper/operator/prometheus"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"strings"
@@ -42,6 +41,7 @@ const (
 const (
 	defaultBookiePort = 3181
 	defaultAdminPort  = 8080
+	defaultMetricsPort  = 8000
 )
 
 const (
@@ -59,8 +59,7 @@ const (
 const (
 	AdminPortName          = "admin-port"
 	ClientPortName         = "client-port"
-	ServiceMetricsPortName = AdminPortName
-	ServiceMetricsPath     = "/metrics"
+	ServiceMetricsPortName = "metrics-port"
 )
 
 var (
@@ -111,7 +110,7 @@ type BookkeeperClusterSpec struct {
 	ProbeConfig *pod.Probes `json:"probeConfig,omitempty"`
 	// MonitoringConfig
 	// +optional
-	MonitoringConfig prometheus.MonitoringConfig `json:"monitoringConfig,omitempty"`
+	MonitoringConfig MonitoringConfig `json:"monitoringConfig,omitempty"`
 	// Env defines environment variables for the bookkeeper statefulset pods
 	Env []v1.EnvVar `json:"env,omitempty"`
 	// Persistence configures your node storage
@@ -129,11 +128,18 @@ type BookkeeperClusterSpec struct {
 	ClusterDomain string `json:"clusterDomain,omitempty"`
 }
 
+type MonitoringConfig struct {
+	// Enabled defines whether this monitoring is enabled or not.
+	Enabled bool `json:"enabled,omitempty"`
+}
+
 type Ports struct {
 	// +kubebuilder:validation:Minimum=1
 	Bookie int32 `json:"bookie,omitempty"`
 	// +kubebuilder:validation:Minimum=1
 	Admin int32 `json:"admin,omitempty"`
+	// +kubebuilder:validation:Minimum=1
+	Metrics int32 `json:"metrics,omitempty"`
 }
 
 func (in *Ports) setDefaults() (changed bool) {
@@ -144,6 +150,10 @@ func (in *Ports) setDefaults() (changed bool) {
 	if in.Admin == 0 {
 		changed = true
 		in.Admin = defaultAdminPort
+	}
+	if in.Metrics == 0 {
+		changed = true
+		in.Metrics = defaultMetricsPort
 	}
 	return
 }

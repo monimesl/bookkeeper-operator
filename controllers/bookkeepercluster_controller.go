@@ -32,7 +32,6 @@ var (
 	_              reconciler.Reconciler = &BookkeeperClusterReconciler{}
 	reconcileFuncs                       = []func(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) error{
 		bookkeepercluster.ReconcilePodDisruptionBudget,
-		bookkeepercluster.ReconcileServiceMonitor,
 		bookkeepercluster.ReconcileConfigMap,
 		bookkeepercluster.ReconcileServices,
 		bookkeepercluster.ReconcileStatefulSet,

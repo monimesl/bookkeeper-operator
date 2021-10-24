@@ -31,8 +31,7 @@ const (
 )
 
 type Client struct {
-	conn                 *zk.Conn
-	requiredNodesCreated bool
+	conn *zk.Conn
 }
 
 // UpdateMetadata update the metadata of the specified cluster
@@ -122,9 +121,7 @@ func (c *Client) getNode(clusterNode string) ([]byte, *zk.Stat, error) {
 }
 
 func (c *Client) createNode(path string, data []byte) error {
-	if strings.HasPrefix(path, "/") {
-		path = path[1:]
-	}
+	path = strings.TrimPrefix(path, "/")
 	paths := strings.Split(path, "/")
 	zNodes := make([]string, len(paths))
 	for i := range paths {

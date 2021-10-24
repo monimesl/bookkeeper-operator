@@ -120,7 +120,7 @@ func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 	annotations := c.Spec.Annotations
 	if c.Spec.MonitoringConfig.Enabled {
 		annotations = annotation.DecorateForPrometheus(
-			annotations, true, int(c.Spec.Ports.Admin))
+			annotations, true, int(c.Spec.Ports.Metrics))
 	}
 	sts.Annotations = annotations
 	return sts
@@ -134,6 +134,7 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	containerPorts := []v12.ContainerPort{
 		{Name: v1alpha1.ClientPortName, ContainerPort: c.Spec.Ports.Bookie},
 		{Name: v1alpha1.AdminPortName, ContainerPort: c.Spec.Ports.Admin},
+		{Name: v1alpha1.ServiceMetricsPortName, ContainerPort: c.Spec.Ports.Metrics},
 	}
 	environment := []v12.EnvFromSource{
 		{

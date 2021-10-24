@@ -108,5 +108,6 @@ func servicePorts(c *v1alpha1.BookkeeperCluster) []v1.ServicePort {
 	return []v1.ServicePort{
 		{Name: v1alpha1.ClientPortName, Port: c.Spec.Ports.Bookie},
 		{Name: v1alpha1.AdminPortName, Port: c.Spec.Ports.Admin},
+		{Name: v1alpha1.ServiceMetricsPortName, Port: c.Spec.Ports.Metrics},
 	}
 }
