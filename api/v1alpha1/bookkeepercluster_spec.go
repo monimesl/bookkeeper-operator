@@ -355,7 +355,7 @@ func (in *BookkeeperClusterSpec) createLabels(clusterName string, addPodLabels b
 	for k, v := range more {
 		labels[k] = v
 	}
-	labels[k8s.LabelAppName] = "zookeeper"
+	labels[k8s.LabelAppName] = "bookkeeper"
 	labels[k8s.LabelAppInstance] = clusterName
 	labels[k8s.LabelAppVersion] = in.BookkeeperVersion
 	labels[k8s.LabelAppManagedBy] = internal.OperatorName
