@@ -39,9 +39,9 @@ const (
 )
 
 const (
-	defaultBookiePort = 3181
-	defaultAdminPort  = 8080
-	defaultMetricsPort  = 8000
+	defaultBookiePort  = 3181
+	defaultAdminPort   = 8080
+	defaultMetricsPort = 8000
 )
 
 const (
@@ -269,8 +269,7 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 	}
 	if in.Size == nil {
 		changed = true
-		size := &defaultClusterSize
-		in.Size = size
+		in.Size = &defaultClusterSize
 	}
 	if in.MaxUnavailableNodes == 0 {
 		changed = true
@@ -284,7 +283,11 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 		changed = true
 		in.Persistence = &Persistence{}
 	}
-	if in.Persistence.setDefault() {
+	if in.Persistence == nil {
+		in.Persistence = &Persistence{}
+		in.Persistence.setDefault()
+		changed = true
+	} else if in.Persistence.setDefault() {
 		changed = true
 	}
 	if in.EnableAutoRecovery == nil {
@@ -340,19 +343,21 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 }
 
 func (in *BookkeeperClusterSpec) createLabels(clusterName string, addPodLabels bool, more map[string]string) map[string]string {
-	ls := in.Labels
-	if ls == nil {
-		ls = map[string]string{}
+	labels := in.Labels
+	if labels == nil {
+		labels = map[string]string{}
 	}
 	if addPodLabels {
 		for k, v := range in.PodConfig.Labels {
-			ls[k] = v
+			labels[k] = v
 		}
 	}
 	for k, v := range more {
-		ls[k] = v
+		labels[k] = v
 	}
-	ls[k8s.LabelAppManagedBy] = internal.OperatorName
-	ls[k8s.LabelAppName] = clusterName
-	return ls
+	labels[k8s.LabelAppName] = "zookeeper"
+	labels[k8s.LabelAppInstance] = clusterName
+	labels[k8s.LabelAppVersion] = in.BookkeeperVersion
+	labels[k8s.LabelAppManagedBy] = internal.OperatorName
+	return labels
 }
