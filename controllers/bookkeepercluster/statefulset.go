@@ -164,6 +164,7 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Ports:           containerPorts,
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
+		Resources:       c.Spec.PodConfig.Resources,
 		StartupProbe:    createStartupProbe(c.Spec),
 		LivenessProbe:   createLivenessProbe(c.Spec),
 		ReadinessProbe:  createReadinessProbe(c.Spec),
