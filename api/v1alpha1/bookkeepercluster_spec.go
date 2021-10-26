@@ -57,9 +57,9 @@ const (
 )
 
 const (
-	AdminPortName          = "admin-port"
-	ClientPortName         = "client-port"
-	ServiceMetricsPortName = "metrics-port"
+	AdminPortName          = "http-admin"
+	ClientPortName         = "tcp-client"
+	ServiceMetricsPortName = "http-metrics"
 )
 
 var (
@@ -355,6 +355,8 @@ func (in *BookkeeperClusterSpec) createLabels(clusterName string, addPodLabels b
 	for k, v := range more {
 		labels[k] = v
 	}
+	labels["app"] = "bookkeeper"
+	labels["version"] = in.BookkeeperVersion
 	labels[k8s.LabelAppName] = "bookkeeper"
 	labels[k8s.LabelAppInstance] = clusterName
 	labels[k8s.LabelAppVersion] = in.BookkeeperVersion
