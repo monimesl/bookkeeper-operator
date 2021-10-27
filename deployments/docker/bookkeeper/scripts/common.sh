@@ -22,6 +22,7 @@ source /opt/bookkeeper/scripts/common.sh >/dev/null
 
 HOSTNAME=$(hostname -s)
 ZK_URL=${BK_zkServers:-127.0.0.1:2181}
+BOOKIE_ADMIN_PORT=${BOOKIE_ADMIN_PORT:-8080}
 LEDGERS_ROOT=${BK_zkLedgersRootPath:-"/ledgers"}
 
 # Extract resource name and this members ordinal value from the pod's hostname
@@ -80,7 +81,7 @@ function waitBookieInit() {
   while [ $retries -lt 10 ]; do
     sleep 1
     echo "waiting for the bookie to be ready, retry: $retries" >&2
-    curl 0.0.0.0/api/v1/bookie/is_ready --fail  >/dev/null 2>&1
+    curl "0.0.0.0:$BOOKIE_ADMIN_PORT/api/v1/bookie/is_ready" --fail  >/dev/null 2>&1
     # shellcheck disable=SC2181
     if [[ $? -eq 0 ]]; then
        echo "The bookie is ready now!!"
