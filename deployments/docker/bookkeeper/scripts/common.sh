@@ -22,7 +22,7 @@ source /opt/bookkeeper/scripts/common.sh >/dev/null
 
 HOSTNAME=$(hostname -s)
 ZK_URL=${BK_zkServers:-127.0.0.1:2181}
-BOOKIE_ADMIN_PORT=${BOOKIE_ADMIN_PORT:-8080}
+BOOKIE_ADMIN_PORT=${BK_httpServerPort:-8080}
 LEDGERS_ROOT=${BK_zkLedgersRootPath:-"/ledgers"}
 
 # Extract resource name and this members ordinal value from the pod's hostname

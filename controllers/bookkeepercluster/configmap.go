@@ -61,7 +61,6 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		"BOOKIE_PORT", "BOOKIE_GC_OPTS", "BOOKIE_MEM_OPTS", "BOOKIE_EXTRA_OPTS", "BOOKIE_GC_LOGGING_OPTS",
 	}
 	data := map[string]string{
-		"BOOKIE_ADMIN_PORT":          fmt.Sprintf("%d", cluster.Spec.Ports.Admin),
 		"BK_enableStatistics":          "false",
 		"BK_httpServerEnabled":         "true",
 		"BK_useHostNameAsBookieID":     "true",
