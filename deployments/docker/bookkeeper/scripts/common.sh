@@ -96,5 +96,16 @@ function waitBookieInit() {
 }
 
 function performSanityTest() {
-  /opt/bookkeeper/bin/bookkeeper shell bookiesanity
+  set +e
+  /opt/bookkeeper/bin/bookkeeper shell bookiesanity > test-output
+  # shellcheck disable=SC2002
+  cat test-output | grep -iq "sanity test succeeded"
+  testCode=$?
+  cat test-output
+  rm test-output
+  set -e
+  # shellcheck disable=SC2181
+  if [[ $testCode -ne 0 ]]; then
+    exit 1
+  fi
 }
