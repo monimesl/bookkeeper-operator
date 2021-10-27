@@ -20,6 +20,7 @@ set -x -e
 
 source /opt/bookkeeper/scripts/common.sh >/dev/null
 
+HOST_IP=$(hostname -i)
 HOSTNAME=$(hostname -s)
 ZK_URL=${BK_zkServers:-127.0.0.1:2181}
 BOOKIE_ADMIN_PORT=${BK_httpServerPort:-8080}
@@ -78,10 +79,10 @@ function waitBookieInit() {
     exit 1
   fi
   retries=0
-  while [ $retries -lt 10 ]; do
+  while [ $retries -lt 30 ]; do
     sleep 1
     echo "waiting for the bookie to be ready, retry: $retries" >&2
-    curl "0.0.0.0:$BOOKIE_ADMIN_PORT/api/v1/bookie/is_ready" --fail  >/dev/null 2>&1
+    curl "$HOST_IP:$BOOKIE_ADMIN_PORT/api/v1/bookie/is_ready" --fail  >/dev/null 2>&1
     # shellcheck disable=SC2181
     if [[ $? -eq 0 ]]; then
        echo "The bookie is ready now!!"
