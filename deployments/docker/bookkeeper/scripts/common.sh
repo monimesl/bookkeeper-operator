@@ -58,6 +58,7 @@ function waitZookeeper() {
 
 function waitBookieInit() {
   set +e
+  ledgerCreated=false
   retries=0
   while [ $retries -lt 10 ]; do
     sleep 2
@@ -65,11 +66,30 @@ function waitBookieInit() {
     res=$(zk-shell --run-once "exists $LEDGERS_ROOT" "$ZK_URL")
     nc -z "$ZK_HOST" "$ZK_PORT"
     if echo "$res" | grep -q "czxid"; then
+      ledgerCreated=true
       echo "the ledger root: '${LEDGERS_ROOT}' created successfully!"
       break
     fi
     retries=$((retries + 1))
   done
+  if [ "$ledgerCreated" == false ]; then
+    echo "tired of waiting for the bookie ledger root creation" >&2
+    exit 1
+  fi
+  retries=0
+  while [ $retries -lt 10 ]; do
+    sleep 1
+    echo "waiting for the bookie to be ready, retry: $retries" >&2
+    curl 0.0.0.0/api/v1/bookie/is_ready --fail  >/dev/null 2>&1
+    # shellcheck disable=SC2181
+    if [[ $? -eq 0 ]]; then
+       echo "The bookie is ready now!!"
+      return
+    fi
+    retries=$((retries + 1))
+  done
+  echo "tired of waiting for bookie to be ready" >&2
+  exit 1
   set -e
 }
 
