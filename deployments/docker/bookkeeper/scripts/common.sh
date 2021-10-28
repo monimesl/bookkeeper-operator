@@ -100,7 +100,6 @@ function performSanityTest() {
   set -x
   retries=0
   while [ $retries -lt 10 ]; do
-    sleep 2
       /opt/bookkeeper/bin/bookkeeper shell bookiesanity > test-output
       # shellcheck disable=SC2002
       cat test-output | grep -iq "sanity test succeeded"
@@ -112,7 +111,8 @@ function performSanityTest() {
          rm test-output
          return
       fi
-       printf "\nSanity Test Failed. Retries=%s\n" $retries
+      printf "\nSanity Test Failed. Retries=%s\n" $retries
+      retries=$((retries + 1))
   done
   cat test-output
   rm test-output
