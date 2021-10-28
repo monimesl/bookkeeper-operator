@@ -28,7 +28,7 @@ function killBookie() {
 function decommissionBookie() {
   set +e
   retries=0
-  while [ $retries -lt 3 ]; do
+  while [ $retries -lt 4 ]; do
     echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME. retries=$retries"
     /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
     # shellcheck disable=SC2181
@@ -52,9 +52,9 @@ fi
 
 rm bookie_started ## remove the start indication file
 
-killBookie
-
 decommissionBookie
+
+killBookie
 
 echo "Eager kill the process keeping the docker runtime instead of waiting for kubernetes 'TerminationGracePeriodSeconds'"
 
