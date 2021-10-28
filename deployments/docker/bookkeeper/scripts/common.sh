@@ -107,6 +107,7 @@ function performSanityTest() {
   set -e
   # shellcheck disable=SC2181
   if [[ $testCode -ne 0 ]]; then
-    exit 1
+    printf "\nSanity Test Failed.\n"
+#    exit 1
   fi
 }
