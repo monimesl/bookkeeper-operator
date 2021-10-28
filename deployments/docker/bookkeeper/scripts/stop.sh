@@ -48,11 +48,19 @@ fi
 
 rm bookie_started ## remove the start indicator file
 
+# before killing the bookie, we open a temporary tcp listener
+# to keep the envoy side container from exiting.
+# See https://github.com/istio/istio/issues/7136
+nc -l 35316 &
+serverPid=$!
+
 killBookie
 
 decommissionBookie
 
 deleteBookieCookie
+
+kill $serverPid
 
 echo "Eager kill the process keeping the docker runtime instead of waiting for kubernetes 'TerminationGracePeriodSeconds'"
 SLEEP_PROCESS=$(cat sleep.pid)
