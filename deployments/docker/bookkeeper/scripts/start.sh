@@ -30,8 +30,6 @@ PID=$! && JOB=$(jobs -l | grep $PID | cut -d"[" -f2 | cut -d"]" -f1)
 # wait for the bookie to initialize
 waitBookieInit
 
-sleep 2 # sleep briefly before sanity test
-
 # perform sanity check on the bookie
 performSanityTest
 
