@@ -111,10 +111,10 @@ function performSanityTest() {
          rm test-output
          return
       fi
+      cat test-output
       printf "\nSanity Test Failed. Retries=%s\n" $retries
       retries=$((retries + 1))
   done
-  cat test-output
   rm test-output
   set -e
   exit 1

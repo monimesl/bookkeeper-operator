@@ -25,7 +25,6 @@ waitZookeeper
 printf "Starting the bookie in the background.\n"
 
 /scripts/entrypoint.sh bookie &
-PID=$! && JOB=$(jobs -l | grep $PID | cut -d"[" -f2 | cut -d"]" -f1)
 
 # wait for the bookie to initialize
 waitBookieInit
@@ -39,6 +38,8 @@ netstat -ltn 2>/dev/null | grep "$BK_PORT"
 
 printf "The bookie was successfully started. 👍 \n"
 
+sleep infinity &
+PID=$! && JOB=$(jobs -l | grep $PID | cut -d"[" -f2 | cut -d"]" -f1)
 echo "$PID" >sleep.pid
 echo "true" >bookie_started
 

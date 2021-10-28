@@ -21,12 +21,8 @@ set -e -x
 source /scripts/common.sh >/dev/null
 
 function killBookie() {
-  printf "Stopping the bookie"
+  printf "Stopping the bookie in the background"
   lsof -i :"$BK_PORT" | grep LISTEN | awk '{print $2}' | xargs kill 2>/dev/null
-  echo "Eager kill the process keeping the docker runtime instead of waiting for kubernetes 'TerminationGracePeriodSeconds'"
-  SLEEP_PROCESS=$(cat sleep.pid)
-  echo "killing the processing = $SLEEP_PROCESS"
-  kill "$SLEEP_PROCESS"
 }
 
 function decommissionBookie() {
@@ -51,12 +47,16 @@ function decommissionBookie() {
 
 if [ ! -f bookie_started ]; then
     echo "The bookie was never ready, bookie_started file missing"
-    killBookie
     return
 fi
 
 rm bookie_started ## remove the start indication file
 
+killBookie
+
 decommissionBookie
 
-killBookie
+echo "Eager kill the process keeping the docker runtime instead of waiting for kubernetes 'TerminationGracePeriodSeconds'"
+SLEEP_PROCESS=$(cat sleep.pid)
+echo "killing the processing = $SLEEP_PROCESS"
+kill "$SLEEP_PROCESS"
