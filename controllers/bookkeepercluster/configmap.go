@@ -26,6 +26,7 @@ import (
 	"github.com/prometheus/common/log"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"strconv"
 	"strings"
 )
 
@@ -54,23 +55,27 @@ func ReconcileConfigMap(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 		})
 }
 
-func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
-	jvmOptions := cluster.Spec.JVMOptions
+func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
+	jvmOptions := c.Spec.JVMOptions
 	excludedOptions := []string{
 		"BK_zkServers", "BK_zkLedgersRootPath", "BK_httpServerEnabled", "BK_httpServerPort", "BK_enableStatistics",
 		"BOOKIE_PORT", "BOOKIE_GC_OPTS", "BOOKIE_MEM_OPTS", "BOOKIE_EXTRA_OPTS", "BOOKIE_GC_LOGGING_OPTS",
+	}
+	autoRecovery := true
+	if c.Spec.EnableAutoRecovery != nil {
+		autoRecovery = *c.Spec.EnableAutoRecovery
 	}
 	data := map[string]string{
 		"BK_enableStatistics":          "false",
 		"BK_httpServerEnabled":         "true",
 		"BK_useHostNameAsBookieID":     "true",
-		"BK_autoRecoveryDaemonEnabled": "true",
 		"BK_lostBookieRecoveryDelay":   "60",
-		"BK_zkServers":                 cluster.Spec.ZkServers,
-		"BK_CLUSTER_ROOT_PATH":         cluster.ZkRootPath(),
-		"BK_zkLedgersRootPath":         cluster.ZkLedgersRootPath(),
-		"BK_httpServerPort":            fmt.Sprintf("%d", cluster.Spec.Ports.Admin),
-		"BOOKIE_PORT":                  fmt.Sprintf("%d", cluster.Spec.Ports.Bookie),
+		"BK_CLUSTER_ROOT_PATH":         c.ZkRootPath(),
+		"BK_zkServers":                 c.Spec.ZkServers,
+		"BK_zkLedgersRootPath":         c.ZkLedgersRootPath(),
+		"BK_autoRecoveryDaemonEnabled": strconv.FormatBool(autoRecovery),
+		"BK_httpServerPort":            fmt.Sprintf("%d", c.Spec.Ports.Admin),
+		"BOOKIE_PORT":                  fmt.Sprintf("%d", c.Spec.Ports.Bookie),
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L118
 		"BOOKIE_MEM_OPTS": strings.Join(jvmOptions.Memory, " "),
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L119
@@ -79,15 +84,15 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		"BOOKIE_GC_LOGGING_OPTS": strings.Join(jvmOptions.GcLogging, " "),
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/bookkeeper#L149
 		"BOOKIE_EXTRA_OPTS": strings.Join(jvmOptions.Extra, " "),
-		"CLUSTER_NAME":      cluster.GetName(),
+		"CLUSTER_NAME":      c.GetName(),
 	}
-	if cluster.Spec.MonitoringConfig.Enabled {
+	if c.Spec.MonitoringConfig.Enabled {
 		data["BK_enableStatistics"] = "true"
 		data["BK_prometheusStatsHttpAddress"] = "0.0.0.0"
-		data["BK_prometheusStatsHttpPort"] = fmt.Sprintf("%d", cluster.Spec.Ports.Metrics)
+		data["BK_prometheusStatsHttpPort"] = fmt.Sprintf("%d", c.Spec.Ports.Metrics)
 		data["BK_statsProviderClass"] = "org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider"
 	}
-	for k, v := range cluster.Spec.BkConfig {
+	for k, v := range c.Spec.BkConfig {
 		if !strings.HasPrefix(k, "BK_") {
 			k = fmt.Sprintf("BK_%s", k)
 		}
@@ -97,5 +102,5 @@ func createConfigMap(cluster *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		}
 		data[k] = v
 	}
-	return configmap.New(cluster.Namespace, cluster.ConfigMapName(), data)
+	return configmap.New(c.Namespace, c.ConfigMapName(), data)
 }

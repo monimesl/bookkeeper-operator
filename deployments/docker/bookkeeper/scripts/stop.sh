@@ -28,7 +28,7 @@ function killBookie() {
 function decommissionBookie() {
   set +e
   retries=0
-  while [ $retries -lt 4 ]; do
+  while [ $retries -lt 3 ]; do
     echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME. retries=$retries"
     /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
     # shellcheck disable=SC2181
@@ -36,12 +36,8 @@ function decommissionBookie() {
       return
     fi
     retries=$((retries + 1))
-    sleep 2
+    sleep 1
   done
-  if [[ "$MY_ORDINAL" -eq "0" ]]; then
-    echo "Formatting the bookie with ordinal $MY_ORDINAL"
-    /opt/bookkeeper/bin/bookkeeper shell bookieformat -nonInteractive -force -deleteCookie
-  fi
   set -e
 }
 
@@ -50,7 +46,7 @@ if [ ! -f bookie_started ]; then
     return
 fi
 
-rm bookie_started ## remove the start indication file
+rm bookie_started ## remove the start indicator file
 
 killBookie
 
