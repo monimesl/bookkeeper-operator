@@ -45,7 +45,7 @@ function waitZookeeper() {
   retries=0
   while [ $retries -lt 2 ]; do
     sleep 2
-    echo "wait for zookeeper at: ${ZK_URL}, retry: $retries" >&2
+    echo "wait for zookeeper at: ${ZK_URL}, retry: $retries"
     nc -z "$ZK_HOST" "$ZK_PORT"
     # shellcheck disable=SC2181
     if [[ $? -eq 0 ]]; then
@@ -54,7 +54,29 @@ function waitZookeeper() {
     retries=$((retries + 1))
   done
   set -e
-  echo "tired of waiting for zookeeper at: ${ZK_URL}"
+  echo "tired of waiting for zookeeper at: ${ZK_URL}" >&2
+  exit 1
+}
+
+function deleteBookieCookie() {
+  set +e
+  cookieZkPath="${LEDGERS_ROOT}/cookies/$(hostname -f):${BK_PORT}"
+  retries=0
+  while [ $retries -lt 5 ]; do
+    sleep 2
+    echo "deleting cookie '${cookieZkPath}', retry: $retries"
+    res=$(zk-shell --run-once "rm $cookieZkPath" "$ZK_URL")
+    if [[ "$res" == "" ]]; then
+      echo "The node cookie was deleted successfully!"
+      return
+    elif [[ "$res" =~ "exist" ]]; then
+      echo "The node cookie does not exists"
+      return
+    fi
+    retries=$((retries + 1))
+  done
+  set -e
+  echo "Unable do delete cookie at '${cookieZkPath}" >&2
   exit 1
 }
 
@@ -64,7 +86,7 @@ function waitBookieInit() {
   retries=0
   while [ $retries -lt 10 ]; do
     sleep 2
-    echo "waiting for ledger root: '${LEDGERS_ROOT}' to be created, retry: $retries" >&2
+    echo "waiting for ledger root: '${LEDGERS_ROOT}' to be created, retry: $retries"
     res=$(zk-shell --run-once "exists $LEDGERS_ROOT" "$ZK_URL")
     nc -z "$ZK_HOST" "$ZK_PORT"
     if echo "$res" | grep -q "czxid"; then

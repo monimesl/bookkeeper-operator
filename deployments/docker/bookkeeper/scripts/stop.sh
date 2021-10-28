@@ -52,6 +52,8 @@ killBookie
 
 decommissionBookie
 
+deleteBookieCookie
+
 echo "Eager kill the process keeping the docker runtime instead of waiting for kubernetes 'TerminationGracePeriodSeconds'"
 SLEEP_PROCESS=$(cat sleep.pid)
 echo "killing the processing = $SLEEP_PROCESS"
