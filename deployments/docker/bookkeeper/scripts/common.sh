@@ -122,7 +122,7 @@ function performSanityTest() {
   set -x
   retries=0
   while [ $retries -lt 10 ]; do
-      /opt/bookkeeper/bin/bookkeeper shell bookiesanity > test-output
+      /opt/bookkeeper/bin/bookkeeper shell bookiesanity -t 20 > test-output
       # shellcheck disable=SC2002
       cat test-output | grep -iq "sanity test succeeded"
       testCode=$?
