@@ -30,7 +30,6 @@ import (
 	v12 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
-	"k8s.io/apimachinery/pkg/util/intstr"
 	"strconv"
 	"strings"
 )
@@ -213,28 +212,19 @@ func createPreStopHandler() *v12.Handler {
 
 func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 	return spec.ProbeConfig.Startup.ToK8sProbe(v12.Handler{
-		HTTPGet: &v12.HTTPGetAction{
-			Port: intstr.FromInt(int(spec.Ports.Admin)),
-			Path: "/api/v1/bookie/is_ready",
-		},
+		Exec: &v12.ExecAction{Command: []string{"/scripts/probeStartup.sh"}},
 	})
 }
 
 func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 	return spec.ProbeConfig.Readiness.ToK8sProbe(v12.Handler{
-		HTTPGet: &v12.HTTPGetAction{
-			Port: intstr.FromInt(int(spec.Ports.Admin)),
-			Path: "/api/v1/bookie/is_ready",
-		},
+		Exec: &v12.ExecAction{Command: []string{"/scripts/probeReadiness.sh"}},
 	})
 }
 
 func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 	return spec.ProbeConfig.Liveness.ToK8sProbe(v12.Handler{
-		HTTPGet: &v12.HTTPGetAction{
-			Port: intstr.FromInt(int(spec.Ports.Admin)),
-			Path: "/heartbeat",
-		},
+		Exec: &v12.ExecAction{Command: []string{"/scripts/probeLiveness.sh"}},
 	})
 }
 

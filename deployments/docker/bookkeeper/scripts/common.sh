@@ -38,7 +38,7 @@ ZK_HOST=${ZK_URL%%:*}
 ZK_PORT=${ZK_URL##*:}
 BK_PORT=${BK_bookiePort:-3181}
 
-export MY_ORDINAL HOSTNAME ZK_HOST ZK_PORT BK_PORT
+export MY_ORDINAL HOSTNAME HOST_IP ZK_HOST ZK_PORT BK_PORT BOOKIE_ADMIN_PORT
 
 function waitZookeeper() {
   set +e
