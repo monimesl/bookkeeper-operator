@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	probeInitialDelaySeconds = 60
+	probeInitialDelaySeconds = 120
 )
 
 // ReconcileStatefulSet reconcile the statefulset of the specified cluster
