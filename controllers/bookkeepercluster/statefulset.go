@@ -35,7 +35,8 @@ import (
 )
 
 const (
-	probeInitialDelaySeconds = 120
+	probeInitialDelaySeconds = 210
+	probeFailureThreshold    = 15
 )
 
 // ReconcileStatefulSet reconcile the statefulset of the specified cluster
@@ -219,6 +220,7 @@ func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 		Exec: &v12.ExecAction{Command: []string{"/scripts/probeStartup.sh"}},
 	})
 	probe.InitialDelaySeconds = probeInitialDelaySeconds
+	probe.FailureThreshold = probeFailureThreshold
 	return probe
 }
 
@@ -227,6 +229,7 @@ func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 		Exec: &v12.ExecAction{Command: []string{"/scripts/probeReadiness.sh"}},
 	})
 	probe.InitialDelaySeconds = probeInitialDelaySeconds
+	probe.FailureThreshold = probeFailureThreshold
 	return probe
 }
 
@@ -235,6 +238,7 @@ func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 		Exec: &v12.ExecAction{Command: []string{"/scripts/probeLiveness.sh"}},
 	})
 	probe.InitialDelaySeconds = probeInitialDelaySeconds
+	probe.FailureThreshold = probeFailureThreshold
 	return probe
 }
 
