@@ -123,7 +123,6 @@ func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 			annotations, true, int(c.Spec.Ports.Metrics))
 	}
 	sts.Annotations = annotations
-	templateSpec.Annotations = annotations
 	return sts
 }
 
