@@ -114,20 +114,20 @@ func updateStatefulsetPVCs(ctx reconciler.Context, sts *v1.StatefulSet, cluster 
 func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 	pvcs := createPersistentVolumeClaims(c)
 	labels := c.CreateLabels(true, nil)
-	templateSpec := createPodTemplateSpec(c, labels)
-	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(), labels, pvcs, templateSpec)
-	sts := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
 	annotations := c.Spec.Annotations
 	if c.Spec.MonitoringConfig.Enabled {
 		annotations = annotation.DecorateForPrometheus(
 			annotations, true, int(c.Spec.Ports.Metrics))
 	}
+	templateSpec := createPodTemplateSpec(c, labels, annotations)
+	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(), labels, pvcs, templateSpec)
+	sts := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
 	sts.Annotations = annotations
 	return sts
 }
 
-func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string) v12.PodTemplateSpec {
-	return pod.NewTemplateSpec("", c.StatefulSetName(), labels, nil, createPodSpec(c))
+func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string, annotations map[string]string) v12.PodTemplateSpec {
+	return pod.NewTemplateSpec("", c.StatefulSetName(), labels, annotations, createPodSpec(c))
 }
 
 func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
