@@ -43,7 +43,7 @@ function decommissionBookie() {
 
 if [ ! -f bookie_started ]; then
     echo "The bookie was never ready, bookie_started file missing"
-    return
+    exit 0
 fi
 
 rm bookie_started ## remove the start indicator file
