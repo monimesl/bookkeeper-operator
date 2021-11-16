@@ -117,6 +117,22 @@ function waitBookieInit() {
   set -e
 }
 
+function decommissionBookie() {
+  set +e
+  retries=0
+  while [ $retries -lt 3 ]; do
+    echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME. retries=$retries"
+    /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
+    # shellcheck disable=SC2181
+    if [[ $? -eq 0 ]]; then
+      return
+    fi
+    retries=$((retries + 1))
+    sleep 1
+  done
+  set -e
+}
+
 function performSanityTest() {
   set +e
   set -x

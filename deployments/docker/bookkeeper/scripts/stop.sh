@@ -25,22 +25,6 @@ function killBookie() {
   lsof -i :"$BK_PORT" | grep LISTEN | awk '{print $2}' | xargs kill 2>/dev/null
 }
 
-function decommissionBookie() {
-  set +e
-  retries=0
-  while [ $retries -lt 3 ]; do
-    echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME. retries=$retries"
-    /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
-    # shellcheck disable=SC2181
-    if [[ $? -eq 0 ]]; then
-      return
-    fi
-    retries=$((retries + 1))
-    sleep 1
-  done
-  set -e
-}
-
 if [ ! -f bookie_started ]; then
     echo "The bookie was never ready, bookie_started file missing"
     exit 0

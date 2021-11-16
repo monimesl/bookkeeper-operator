@@ -22,6 +22,16 @@ set -e -x -m
 
 waitZookeeper
 
+if [ -f bookie_started ]; then
+    echo "The previous bookie did not have a clean shutdown"
+
+    deleteBookieCookie
+
+    decommissionBookie
+
+    rm bookie_started
+fi
+
 printf "Starting the bookie in the background.\n"
 
 /scripts/entrypoint.sh bookie &
