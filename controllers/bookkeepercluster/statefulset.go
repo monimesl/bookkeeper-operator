@@ -34,6 +34,10 @@ import (
 	"strings"
 )
 
+const (
+	probeInitialDelaySeconds = 60
+)
+
 // ReconcileStatefulSet reconcile the statefulset of the specified cluster
 func ReconcileStatefulSet(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) error {
 	sts := &v1.StatefulSet{}
@@ -211,21 +215,27 @@ func createPreStopHandler() *v12.Handler {
 }
 
 func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	return spec.ProbeConfig.Startup.ToK8sProbe(v12.Handler{
+	probe := spec.ProbeConfig.Startup.ToK8sProbe(v12.Handler{
 		Exec: &v12.ExecAction{Command: []string{"/scripts/probeStartup.sh"}},
 	})
+	probe.InitialDelaySeconds = probeInitialDelaySeconds
+	return probe
 }
 
 func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	return spec.ProbeConfig.Readiness.ToK8sProbe(v12.Handler{
+	probe := spec.ProbeConfig.Readiness.ToK8sProbe(v12.Handler{
 		Exec: &v12.ExecAction{Command: []string{"/scripts/probeReadiness.sh"}},
 	})
+	probe.InitialDelaySeconds = probeInitialDelaySeconds
+	return probe
 }
 
 func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	return spec.ProbeConfig.Liveness.ToK8sProbe(v12.Handler{
+	probe := spec.ProbeConfig.Liveness.ToK8sProbe(v12.Handler{
 		Exec: &v12.ExecAction{Command: []string{"/scripts/probeLiveness.sh"}},
 	})
+	probe.InitialDelaySeconds = probeInitialDelaySeconds
+	return probe
 }
 
 func createPersistentVolumeClaims(c *v1alpha1.BookkeeperCluster) []v12.PersistentVolumeClaim {

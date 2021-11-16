@@ -20,4 +20,4 @@ source /scripts/common.sh
 
 set -x -e
 
-curl "$HOST_IP:$BOOKIE_ADMIN_PORT/api/v1/bookie/is_ready"
+curl --fail -XGET "0.0.0.0:$BOOKIE_ADMIN_PORT/api/v1/bookie/is_ready"
