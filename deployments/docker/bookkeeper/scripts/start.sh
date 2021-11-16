@@ -30,7 +30,7 @@ printf "Starting the bookie in the background.\n"
 waitBookieInit
 
 # perform sanity check on the bookie
-performSanityTest
+# performSanityTest
 
 printf "Probing whether the bookie is alive\n"
 
