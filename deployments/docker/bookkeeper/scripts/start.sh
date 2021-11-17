@@ -22,10 +22,10 @@ set -e -x -m
 
 waitZookeeper
 
+deleteCookie
+
 if [ -f bookie_started ]; then
     echo "The previous bookie did not have a clean shutdown"
-
-    deleteBookieCookie
 
     decommissionBookie
 

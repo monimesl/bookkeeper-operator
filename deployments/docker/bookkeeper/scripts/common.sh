@@ -43,7 +43,7 @@ export MY_ORDINAL HOSTNAME HOST_IP ZK_HOST ZK_PORT BK_PORT BOOKIE_ADMIN_PORT
 function waitZookeeper() {
   set +e
   retries=0
-  while [ $retries -lt 2 ]; do
+  while [ $retries -lt 5 ]; do
     sleep 2
     echo "wait for zookeeper at: ${ZK_URL}, retry: $retries"
     nc -z "$ZK_HOST" "$ZK_PORT"
@@ -58,7 +58,7 @@ function waitZookeeper() {
   exit 1
 }
 
-function deleteBookieCookie() {
+function deleteCookie() {
   set +e
   cookieZkPath="${LEDGERS_ROOT}/cookies/$(hostname -f):${BK_PORT}"
   retries=0

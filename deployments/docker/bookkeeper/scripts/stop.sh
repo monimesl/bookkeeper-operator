@@ -30,8 +30,6 @@ if [ ! -f bookie_started ]; then
     exit 0
 fi
 
-rm bookie_started ## remove the start indicator file
-
 # before killing the bookie, we open a temporary tcp listener
 # to keep the envoy side container from exiting.
 # See https://github.com/istio/istio/issues/7136
@@ -42,7 +40,9 @@ killBookie
 
 decommissionBookie
 
-deleteBookieCookie
+deleteCookie
+
+rm bookie_started ## remove the start indicator file
 
 kill $serverPid
 
