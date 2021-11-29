@@ -339,7 +339,7 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) { //nolint:cyclop
 	return
 }
 
-func (in *BookkeeperClusterSpec) CreateAnnotations() map[string]string {
+func (in *BookkeeperClusterSpec) createAnnotations() map[string]string {
 	return in.Annotations
 }
 

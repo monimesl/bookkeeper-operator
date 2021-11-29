@@ -100,7 +100,7 @@ func createService(c *v1alpha1.BookkeeperCluster, name string, hasClusterIp bool
 		Selector:  labels,
 		Ports:     servicePorts,
 	})
-	srv.Annotations = c.Spec.Annotations
+	srv.Annotations = c.GenerateAnnotations()
 	return srv
 }
 

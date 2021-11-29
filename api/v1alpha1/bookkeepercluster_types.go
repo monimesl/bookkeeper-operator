@@ -64,7 +64,7 @@ func (in *BookkeeperCluster) SetStatusDefaults() (changed bool) {
 }
 
 func (in *BookkeeperCluster) GenerateAnnotations() map[string]string {
-	return in.Spec.CreateAnnotations()
+	return in.Spec.createAnnotations()
 }
 
 func (in *BookkeeperCluster) GenerateLabels() map[string]string {
