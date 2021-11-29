@@ -26,8 +26,8 @@ function killBookie() {
 }
 
 if [ ! -f bookie_started ]; then
-    echo "The bookie was never ready, bookie_started file missing"
-    exit 0
+  echo "The bookie was never ready, bookie_started file missing"
+  exit 0
 fi
 
 # before killing the bookie, we open a temporary tcp listener

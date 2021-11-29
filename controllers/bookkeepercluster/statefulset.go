@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/operator-helper/k8s/annotation"
 	"github.com/monimesl/operator-helper/k8s/pod"
 	"github.com/monimesl/operator-helper/k8s/pvc"
 	"github.com/monimesl/operator-helper/k8s/statefulset"
@@ -108,7 +107,7 @@ func updateStatefulsetPVCs(ctx reconciler.Context, sts *v1.StatefulSet, cluster 
 				"PVC.Namespace", toDel.GetNamespace(), "PVC.Name", toDel.GetName())
 			err = ctx.Client().Delete(context.TODO(), toDel)
 			if err != nil {
-				return fmt.Errorf("error on deleing the pvc (%s): %v", toDel.Name, err)
+				return fmt.Errorf("error on deleing the pvc (%s): %w", toDel.Name, err)
 			}
 		}
 	}
@@ -116,22 +115,20 @@ func updateStatefulsetPVCs(ctx reconciler.Context, sts *v1.StatefulSet, cluster 
 }
 
 func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
-	pvcs := createPersistentVolumeClaims(c)
-	labels := c.CreateLabels(true, nil)
-	templateSpec := createPodTemplateSpec(c, labels)
-	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(), labels, pvcs, templateSpec)
-	sts := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
-	annotations := c.Spec.Annotations
-	if c.Spec.MonitoringConfig.Enabled {
-		annotations = annotation.DecorateForPrometheus(
-			annotations, true, int(c.Spec.Ports.Metrics))
-	}
-	sts.Annotations = annotations
+	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(),
+		c.Spec.Labels, createPersistentVolumeClaims(c), createPodTemplateSpec(c))
+	sts := statefulset.New(c.Namespace, c.StatefulSetName(), c.Spec.Labels, spec)
+	sts.Annotations = c.GenerateAnnotations()
 	return sts
 }
 
-func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string) v12.PodTemplateSpec {
-	return pod.NewTemplateSpec("", c.StatefulSetName(), labels, c.Spec.PodConfig.Annotations, createPodSpec(c))
+func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster) v12.PodTemplateSpec {
+	return v12.PodTemplateSpec{
+		ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
+			c.StatefulSetName(), c.GenerateLabels(),
+			c.GenerateAnnotations()),
+		Spec: createPodSpec(c),
+	}
 }
 
 func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
@@ -158,7 +155,7 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		VolumeMounts:    volumeMounts,
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
-		Env:             c.Spec.Env,
+		Env:             c.Spec.PodConfig.Spec.Env,
 		Command:         []string{"/bin/sh", "/scripts/init.sh"},
 	}
 	container := v12.Container{
@@ -168,16 +165,14 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Ports:           containerPorts,
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
-		Resources:       c.Spec.PodConfig.Resources,
+		Resources:       c.Spec.PodConfig.Spec.Resources,
 		StartupProbe:    createStartupProbe(c.Spec),
 		LivenessProbe:   createLivenessProbe(c.Spec),
 		ReadinessProbe:  createReadinessProbe(c.Spec),
 		Lifecycle:       &v12.Lifecycle{PreStop: createPreStopHandler()},
-		Env:             pod.DecorateContainerEnvVars(true, c.Spec.Env...),
+		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
 	}
-	spec := pod.NewSpec(c.Spec.PodConfig, volumes, []v12.Container{init}, []v12.Container{container})
-	spec.TerminationGracePeriodSeconds = c.Spec.PodConfig.TerminationGracePeriodSeconds
-	return spec
+	return pod.NewSpec(c.Spec.PodConfig, volumes, []v12.Container{init}, []v12.Container{container})
 }
 
 func createVolumeMounts(directories *v1alpha1.Directories) []v12.VolumeMount {
@@ -245,15 +240,15 @@ func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 func createPersistentVolumeClaims(c *v1alpha1.BookkeeperCluster) []v12.PersistentVolumeClaim {
 	return []v12.PersistentVolumeClaim{
 		pvc.New(c.Namespace, "index",
-			c.CreateLabels(false, nil),
+			c.GenerateLabels(),
 			*c.Spec.Persistence.IndexVolumeClaimSpec,
 		),
 		pvc.New(c.Namespace, "ledger",
-			c.CreateLabels(false, nil),
+			c.GenerateLabels(),
 			*c.Spec.Persistence.LedgerVolumeClaimSpec,
 		),
 		pvc.New(c.Namespace, "journal",
-			c.CreateLabels(false, nil),
+			c.GenerateLabels(),
 			*c.Spec.Persistence.JournalVolumeClaimSpec,
 		),
 	}

@@ -104,10 +104,10 @@ function waitBookieInit() {
   while [ $retries -lt 70 ]; do
     sleep 2
     echo "waiting for the bookie to be ready, retry: $retries" >&2
-    curl "$HOST_IP:$BOOKIE_ADMIN_PORT/api/v1/bookie/is_ready" --fail  >/dev/null 2>&1
+    curl "$HOST_IP:$BOOKIE_ADMIN_PORT/api/v1/bookie/is_ready" --fail >/dev/null 2>&1
     # shellcheck disable=SC2181
     if [[ $? -eq 0 ]]; then
-       echo "The bookie is ready now!!"
+      echo "The bookie is ready now!!"
       return
     fi
     retries=$((retries + 1))
@@ -138,20 +138,20 @@ function performSanityTest() {
   set -x
   retries=0
   while [ $retries -lt 10 ]; do
-      /opt/bookkeeper/bin/bookkeeper shell bookiesanity -e 1 -t 60 > test-output
-      # shellcheck disable=SC2002
-      cat test-output | grep -iq "sanity test succeeded"
-      testCode=$?
-      # shellcheck disable=SC2181
-      if [[ $testCode -eq 0 ]]; then
-        set -e
-         printf "\nSanity Test Passed.\n"
-         rm test-output
-         return
-      fi
-      cat test-output
-      printf "\nSanity Test Failed. Retries=%s\n" $retries
-      retries=$((retries + 1))
+    /opt/bookkeeper/bin/bookkeeper shell bookiesanity -e 1 -t 60 >test-output
+    # shellcheck disable=SC2002
+    cat test-output | grep -iq "sanity test succeeded"
+    testCode=$?
+    # shellcheck disable=SC2181
+    if [[ $testCode -eq 0 ]]; then
+      set -e
+      printf "\nSanity Test Passed.\n"
+      rm test-output
+      return
+    fi
+    cat test-output
+    printf "\nSanity Test Failed. Retries=%s\n" $retries
+    retries=$((retries + 1))
   done
   rm test-output
   set -e

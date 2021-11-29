@@ -90,7 +90,7 @@ func createHeadlessService(c *v1alpha1.BookkeeperCluster) *v1.Service {
 }
 
 func createService(c *v1alpha1.BookkeeperCluster, name string, hasClusterIp bool, servicePorts []v1.ServicePort) *v1.Service {
-	labels := c.CreateLabels(false, nil)
+	labels := c.GenerateLabels()
 	clusterIp := ""
 	if !hasClusterIp {
 		clusterIp = v1.ClusterIPNone

@@ -63,8 +63,12 @@ func (in *BookkeeperCluster) SetStatusDefaults() (changed bool) {
 	return in.Status.setDefault()
 }
 
-func (in *BookkeeperCluster) CreateLabels(addPodLabels bool, more map[string]string) map[string]string {
-	return in.Spec.createLabels(in.Name, addPodLabels, more)
+func (in *BookkeeperCluster) GenerateAnnotations() map[string]string {
+	return in.Spec.CreateAnnotations()
+}
+
+func (in *BookkeeperCluster) GenerateLabels() map[string]string {
+	return in.Spec.createLabels(in.Name)
 }
 
 func (in *BookkeeperCluster) generateName() string {
@@ -116,7 +120,7 @@ func (in *BookkeeperCluster) WaitClusterTermination(kubeClient client.Client) (e
 	config.RequireRootLogger().Info(
 		"Waiting for the cluster to terminate",
 		"cluster", in.GetName())
-	labels := in.CreateLabels(true, nil)
+	labels := in.GenerateLabels()
 	return k8s.WaitForPodsToTerminate(kubeClient, in.Namespace, labels)
 }
 

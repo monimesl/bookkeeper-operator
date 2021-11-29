@@ -66,16 +66,19 @@ func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		autoRecovery = *c.Spec.EnableAutoRecovery
 	}
 	data := map[string]string{
-		"BK_enableStatistics":          "false",
-		"BK_httpServerEnabled":         "true",
-		"BK_useHostNameAsBookieID":     "true",
-		"BK_lostBookieRecoveryDelay":   "60",
-		"BK_CLUSTER_ROOT_PATH":         c.ZkRootPath(),
-		"BK_zkServers":                 c.Spec.ZkServers,
-		"BK_zkLedgersRootPath":         c.ZkLedgersRootPath(),
-		"BK_autoRecoveryDaemonEnabled": strconv.FormatBool(autoRecovery),
-		"BK_httpServerPort":            fmt.Sprintf("%d", c.Spec.Ports.Admin),
-		"BOOKIE_PORT":                  fmt.Sprintf("%d", c.Spec.Ports.Bookie),
+		"BK_enableStatistics":           "true",
+		"BK_httpServerEnabled":          "true",
+		"BK_useHostNameAsBookieID":      "true",
+		"BK_lostBookieRecoveryDelay":    "60",
+		"BK_prometheusStatsHttpAddress": "0.0.0.0",
+		"BK_CLUSTER_ROOT_PATH":          c.ZkRootPath(),
+		"BK_zkServers":                  c.Spec.ZkServers,
+		"BK_zkLedgersRootPath":          c.ZkLedgersRootPath(),
+		"BK_autoRecoveryDaemonEnabled":  strconv.FormatBool(autoRecovery),
+		"BK_httpServerPort":             fmt.Sprintf("%d", c.Spec.Ports.Admin),
+		"BK_prometheusStatsHttpPort":    fmt.Sprintf("%d", c.Spec.Ports.Metrics),
+		"BOOKIE_PORT":                   fmt.Sprintf("%d", c.Spec.Ports.Bookie),
+		"BK_statsProviderClass":         "org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider",
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L118
 		"BOOKIE_MEM_OPTS": strings.Join(jvmOptions.Memory, " "),
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L119
@@ -85,12 +88,6 @@ func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/bookkeeper#L149
 		"BOOKIE_EXTRA_OPTS": strings.Join(jvmOptions.Extra, " "),
 		"CLUSTER_NAME":      c.GetName(),
-	}
-	if c.Spec.MonitoringConfig.Enabled {
-		data["BK_enableStatistics"] = "true"
-		data["BK_prometheusStatsHttpAddress"] = "0.0.0.0"
-		data["BK_prometheusStatsHttpPort"] = fmt.Sprintf("%d", c.Spec.Ports.Metrics)
-		data["BK_statsProviderClass"] = "org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider"
 	}
 	for k, v := range c.Spec.BkConfig {
 		if !strings.HasPrefix(k, "BK_") {

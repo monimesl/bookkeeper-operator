@@ -25,11 +25,11 @@ waitZookeeper
 deleteCookie
 
 if [ -f bookie_started ]; then
-    echo "The previous bookie did not have a clean shutdown"
+  echo "The previous bookie did not have a clean shutdown"
 
-    decommissionBookie
+  decommissionBookie
 
-    rm bookie_started
+  rm bookie_started
 fi
 
 printf "Starting the bookie in the background.\n"

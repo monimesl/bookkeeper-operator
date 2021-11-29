@@ -81,7 +81,7 @@ func createPodDisruptionBudget(cluster *v1alpha1.BookkeeperCluster) *v1beta1.Pod
 		Spec: v1beta1.PodDisruptionBudgetSpec{
 			MaxUnavailable: &maxFailureNodes,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: cluster.CreateLabels(true, nil),
+				MatchLabels: cluster.GenerateLabels(),
 			},
 		},
 	}

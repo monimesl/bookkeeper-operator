@@ -108,11 +108,7 @@ type BookkeeperClusterSpec struct {
 	// ProbeConfig defines the probing settings for the bookkeeper containers
 	// +optional
 	ProbeConfig *pod.Probes `json:"probeConfig,omitempty"`
-	// MonitoringConfig
-	// +optional
-	MonitoringConfig MonitoringConfig `json:"monitoringConfig,omitempty"`
-	// Env defines environment variables for the bookkeeper statefulset pods
-	Env []v1.EnvVar `json:"env,omitempty"`
+
 	// Persistence configures your node storage
 	// +optional
 	Persistence *Persistence `json:"persistence,omitempty"`
@@ -258,7 +254,8 @@ func createVolumeClaimSpec() *v1.PersistentVolumeClaimSpec {
 	}
 }
 
-func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
+//nolint:nakedret
+func (in *BookkeeperClusterSpec) setDefaults() (changed bool) { //nolint:cyclop
 	if in.BookkeeperVersion == "" {
 		changed = true
 		in.BookkeeperVersion = defaultImageTag
@@ -335,25 +332,21 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) {
 	if in.JVMOptions.setDefaults() {
 		changed = true
 	}
-	if in.PodConfig.TerminationGracePeriodSeconds == nil {
+	if in.PodConfig.Spec.TerminationGracePeriodSeconds == nil {
 		changed = true
-		in.PodConfig.TerminationGracePeriodSeconds = &defaultTerminationGracePeriod
+		in.PodConfig.Spec.TerminationGracePeriodSeconds = &defaultTerminationGracePeriod
 	}
 	return
 }
 
-func (in *BookkeeperClusterSpec) createLabels(clusterName string, addPodLabels bool, more map[string]string) map[string]string {
+func (in *BookkeeperClusterSpec) CreateAnnotations() map[string]string {
+	return in.Annotations
+}
+
+func (in *BookkeeperClusterSpec) createLabels(clusterName string) map[string]string {
 	labels := in.Labels
 	if labels == nil {
 		labels = map[string]string{}
-	}
-	if addPodLabels {
-		for k, v := range in.PodConfig.Labels {
-			labels[k] = v
-		}
-	}
-	for k, v := range more {
-		labels[k] = v
 	}
 	labels["app"] = "bookkeeper"
 	labels["version"] = in.BookkeeperVersion

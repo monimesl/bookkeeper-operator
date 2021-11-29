@@ -28,9 +28,10 @@ import (
 )
 
 // ReconcileClusterStatus reconcile the status of the specified cluster
+//nolint:nakedret
 func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) (err error) {
 	expectedClusterSize := int(*cluster.Spec.Size)
-	labels := cluster.CreateLabels(true, nil)
+	labels := cluster.GenerateLabels()
 	err = updateMetadata(ctx, cluster)
 	if err != nil {
 		return err
@@ -39,29 +40,28 @@ func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.Bookkeeper
 	if err != nil {
 		return err
 	}
-	if expectedClusterSize == len(readyReplicas) {
+	switch {
+	case expectedClusterSize == len(readyReplicas):
 		cluster.Status.SetPodsReadyConditionTrue()
-	} else if len(readyReplicas) == 0 {
+	case len(readyReplicas) == 0:
 		cluster.Status.SetPodsReadyConditionFalse()
-	} else {
+	default:
 		cluster.Status.SetPodsReadyConditionFalse()
 	}
-	var (
-		readyMembers   []string
-		unreadyMembers []string
-	)
-	for _, p := range readyReplicas {
-		readyMembers = append(readyMembers, p.Name)
+	readyMembers := make([]string, len(readyReplicas))
+	for i, p := range readyReplicas {
+		readyMembers[i] = p.Name
 	}
-	for _, p := range unreadyReplicas {
-		unreadyMembers = append(unreadyMembers, p.Name)
+	unreadyMembers := make([]string, len(unreadyReplicas))
+	for i, p := range unreadyReplicas {
+		unreadyMembers[i] = p.Name
 	}
 	cluster.Status.Membership.Ready = readyMembers
 	cluster.Status.Membership.Unready = unreadyMembers
 	cluster.Status.ReadyReplicas = int32(len(readyReplicas))
 	cluster.Status.CurrentReplicas = int32(len(readyReplicas) + len(unreadyReplicas))
 	if err = ctx.Client().Status().Update(context.TODO(), cluster); err != nil {
-		err = fmt.Errorf("error on updating the cluster (%s) status: %v", cluster.Name, err)
+		err = fmt.Errorf("error on updating the cluster (%s) status: %w", cluster.Name, err)
 	}
 	return
 }
