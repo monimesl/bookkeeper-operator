@@ -104,3 +104,39 @@ jobs:
             org.opencontainers.image.version=${{ steps.prepare.outputs.version }}
             org.opencontainers.image.created=${{ steps.prepare.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
+
+      # Bookkeeper-4.12.1
+      - uses: docker/build-push-action@v2
+        name: Build-Push-4.12.1
+        with:
+          push: true
+          build-args: |
+            bk_version=4.12.1
+          file: deployments/docker/bookkeeper/Dockerfile
+          tags: |
+            ${{ steps.prepare.outputs.image }}:4.12.1
+            ${{ steps.prepare.outputs.latest }}
+          labels: |
+            org.opencontainers.image.title=${{ github.event.repository.name }}
+            org.opencontainers.image.description=${{ github.event.repository.description }}
+            org.opencontainers.image.version=${{ steps.prepare.outputs.version }}
+            org.opencontainers.image.created=${{ steps.prepare.outputs.created }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      # Bookkeeper-4.13.0
+      - uses: docker/build-push-action@v2
+        name: Build-Push-4.13.0
+        with:
+          push: true
+          build-args: |
+            bk_version=4.13.0
+          file: deployments/docker/bookkeeper/Dockerfile
+          tags: |
+            ${{ steps.prepare.outputs.image }}:4.13.0
+            ${{ steps.prepare.outputs.latest }}
+          labels: |
+            org.opencontainers.image.title=${{ github.event.repository.name }}
+            org.opencontainers.image.description=${{ github.event.repository.description }}
+            org.opencontainers.image.version=${{ steps.prepare.outputs.version }}
+            org.opencontainers.image.created=${{ steps.prepare.outputs.created }}
+            org.opencontainers.image.revision=${{ github.sha }}

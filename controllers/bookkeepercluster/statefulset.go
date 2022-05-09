@@ -29,6 +29,7 @@ import (
 	v12 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"strconv"
 	"strings"
 )
@@ -165,10 +166,10 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Ports:           containerPorts,
 		Image:           image.ToString(),
 		ImagePullPolicy: image.PullPolicy,
-		Resources:       c.Spec.PodConfig.Spec.Resources,
 		StartupProbe:    createStartupProbe(c.Spec),
 		LivenessProbe:   createLivenessProbe(c.Spec),
 		ReadinessProbe:  createReadinessProbe(c.Spec),
+		Resources:       c.Spec.PodConfig.Spec.Resources,
 		Lifecycle:       &v12.Lifecycle{PreStop: createPreStopHandler()},
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
 	}
@@ -212,7 +213,10 @@ func createPreStopHandler() *v12.Handler {
 
 func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 	probe := spec.ProbeConfig.Startup.ToK8sProbe(v12.Handler{
-		Exec: &v12.ExecAction{Command: []string{"/scripts/probeStartup.sh"}},
+		HTTPGet: &v12.HTTPGetAction{
+			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Path: "/heartbeat",
+		},
 	})
 	probe.InitialDelaySeconds = probeInitialDelaySeconds
 	probe.FailureThreshold = probeFailureThreshold
@@ -221,7 +225,10 @@ func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 
 func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 	probe := spec.ProbeConfig.Readiness.ToK8sProbe(v12.Handler{
-		Exec: &v12.ExecAction{Command: []string{"/scripts/probeReadiness.sh"}},
+		HTTPGet: &v12.HTTPGetAction{
+			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Path: "/api/v1/bookie/is_ready",
+		},
 	})
 	probe.InitialDelaySeconds = probeInitialDelaySeconds
 	probe.FailureThreshold = probeFailureThreshold
@@ -230,7 +237,10 @@ func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 
 func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 	probe := spec.ProbeConfig.Liveness.ToK8sProbe(v12.Handler{
-		Exec: &v12.ExecAction{Command: []string{"/scripts/probeLiveness.sh"}},
+		HTTPGet: &v12.HTTPGetAction{
+			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Path: "/heartbeat",
+		},
 	})
 	probe.InitialDelaySeconds = probeInitialDelaySeconds
 	probe.FailureThreshold = probeFailureThreshold
