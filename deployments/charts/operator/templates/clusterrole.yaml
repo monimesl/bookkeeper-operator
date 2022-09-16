@@ -3,6 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ .Chart.Name }}-manager-role
+  namespace: {{ .Release.Namespace }}
   labels:
   {{- include "operator.labels" . | nindent 4 }}
 rules:
@@ -39,6 +40,7 @@ rules:
       - secrets
       - services
       - configmaps
+      - deployments
       - statefulsets
       - poddisruptionbudgets
       - persistentvolumeclaims

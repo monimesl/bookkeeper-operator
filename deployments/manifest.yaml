@@ -2102,6 +2102,7 @@ rules:
       - secrets
       - services
       - configmaps
+      - deployments
       - statefulsets
       - poddisruptionbudgets
       - persistentvolumeclaims
