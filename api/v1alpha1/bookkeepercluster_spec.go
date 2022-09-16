@@ -27,6 +27,10 @@ import (
 )
 
 const (
+	AppName = "bookkeeper"
+)
+
+const (
 	minimumClusterSize = 3
 	defaultJournalDir  = "/bk/data/journal"
 	defaultLedgerDirs  = "/bk/data/ledger"
@@ -34,7 +38,7 @@ const (
 )
 
 const (
-	imageRepository = "monime/bookkeeper"
+	imageRepository = "apache/bookkeeper"
 	defaultImageTag = "latest"
 )
 
@@ -63,7 +67,8 @@ const (
 )
 
 var (
-	defaultTerminationGracePeriod int64 = 600
+	defaultTerminationGracePeriod int64 = 30
+	defaultAutoRecoveryReplica          = int32(1)
 	defaultClusterSize                  = int32(minimumClusterSize)
 )
 
@@ -80,6 +85,8 @@ type BookkeeperClusterSpec struct {
 	ImagePullPolicy v1.PullPolicy `json:"imagePullPolicy,omitempty"`
 	// +kubebuilder:validation:Minimum=0
 	Size *int32 `json:"size,omitempty"`
+	// +kubebuilder:validation:Minimum=0
+	AutoRecoveryReplicas *int32 `json:"autoRecoveryReplicas,omitempty"`
 	// MaxUnavailableNodes defines the maximum number of nodes that
 	// can be unavailable as per kubernetes PodDisruptionBudget
 	// Default is 1.
@@ -90,7 +97,7 @@ type BookkeeperClusterSpec struct {
 	ZkServers   string       `json:"zkServers"`
 	Directories *Directories `json:"directories,omitempty"`
 	Ports       *Ports       `json:"ports,omitempty"`
-	// EnableAutoRecovery indicates whether or not BookKeeper auto recovery is enabled.
+	// EnableAutoRecovery indicates whether BookKeeper auto recovery is enabled.
 	// Defaults to true.
 	// +optional
 	EnableAutoRecovery *bool `json:"enableAutoRecovery"`
@@ -179,7 +186,7 @@ func (in *JVMOptions) setDefaults() (changed bool) {
 	if in.Memory == nil {
 		changed = true
 		in.Memory = []string{
-			"-Xms128m", "-Xmx256m", "-XX:MaxDirectMemorySize=256m",
+			"-Xms250m", "-Xmx250m", "-XX:MaxDirectMemorySize=250m",
 		}
 	}
 	if in.Gc == nil {
@@ -187,7 +194,7 @@ func (in *JVMOptions) setDefaults() (changed bool) {
 		in.Gc = strings.Split(
 			"-XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled "+
 				"-XX:+UnlockExperimentalVMOptions -XX:+DoEscapeAnalysis -verbosegc "+
-				"-XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC "+
+				"-XX:ParallelGCThreads=32 -XX:ConcGCThreads=32 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC "+
 				"-XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem -Xlog:gc* ",
 			" ")
 	}
@@ -267,6 +274,10 @@ func (in *BookkeeperClusterSpec) setDefaults() (changed bool) { //nolint:cyclop
 	if in.Size == nil {
 		changed = true
 		in.Size = &defaultClusterSize
+	}
+	if in.AutoRecoveryReplicas == nil {
+		changed = true
+		in.AutoRecoveryReplicas = &defaultAutoRecoveryReplica
 	}
 	if in.MaxUnavailableNodes == 0 {
 		changed = true
@@ -350,7 +361,7 @@ func (in *BookkeeperClusterSpec) createLabels(clusterName string) map[string]str
 	}
 	labels["app"] = "bookkeeper"
 	labels["version"] = in.BookkeeperVersion
-	labels[k8s.LabelAppName] = "bookkeeper"
+	labels[k8s.LabelAppName] = AppName
 	labels[k8s.LabelAppInstance] = clusterName
 	labels[k8s.LabelAppVersion] = in.BookkeeperVersion
 	labels[k8s.LabelAppManagedBy] = internal.OperatorName

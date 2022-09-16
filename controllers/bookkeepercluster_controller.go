@@ -35,6 +35,7 @@ var (
 		bookkeepercluster.ReconcileConfigMap,
 		bookkeepercluster.ReconcileServices,
 		bookkeepercluster.ReconcileStatefulSet,
+		bookkeepercluster.ReconcileAutoRecovery,
 		bookkeepercluster.ReconcileClusterStatus,
 		bookkeepercluster.ReconcileFinalizer,
 	}

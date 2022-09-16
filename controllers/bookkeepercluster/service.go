@@ -67,6 +67,7 @@ func reconcileHeadlessService(ctx reconciler.Context, cluster *v1alpha1.Bookkeep
 		// Not Found
 		func() (err error) {
 			svc = createHeadlessService(cluster)
+			svc.Spec.PublishNotReadyAddresses = true
 			if err = ctx.SetOwnershipReference(cluster, svc); err == nil {
 				ctx.Logger().Info("Creating the bookkeeper headless service.",
 					"Service.Name", svc.GetName(),

@@ -37,6 +37,7 @@ import (
 const (
 	probeInitialDelaySeconds = 210
 	probeFailureThreshold    = 15
+	bookieComponent          = "bookie"
 )
 
 // ReconcileStatefulSet reconcile the statefulset of the specified cluster
@@ -116,9 +117,10 @@ func updateStatefulsetPVCs(ctx reconciler.Context, sts *v1.StatefulSet, cluster 
 }
 
 func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
+	labels := c.GenerateWorkloadLabels(bookieComponent)
 	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(),
-		c.GenerateLabels(), createPersistentVolumeClaims(c), createPodTemplateSpec(c))
-	sts := statefulset.New(c.Namespace, c.StatefulSetName(), c.GenerateLabels(), spec)
+		labels, createPersistentVolumeClaims(c), createPodTemplateSpec(c))
+	sts := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
 	sts.Annotations = c.GenerateAnnotations()
 	return sts
 }
@@ -126,13 +128,13 @@ func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster) v12.PodTemplateSpec {
 	return v12.PodTemplateSpec{
 		ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
-			c.StatefulSetName(), c.GenerateLabels(),
+			c.StatefulSetName(), c.GenerateWorkloadLabels(bookieComponent),
 			c.GenerateAnnotations()),
-		Spec: createPodSpec(c),
+		Spec: createBookiePodSpec(c),
 	}
 }
 
-func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
+func createBookiePodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	containerPorts := []v12.ContainerPort{
 		{Name: v1alpha1.ClientPortName, ContainerPort: c.Spec.Ports.Bookie},
 		{Name: v1alpha1.AdminPortName, ContainerPort: c.Spec.Ports.Admin},
@@ -150,30 +152,26 @@ func createPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	image := c.Image()
 	volumes := make([]v12.Volume, 0)
 	volumeMounts := createVolumeMounts(c.Spec.Directories)
-	init := v12.Container{
-		Name:            "bk-init",
-		EnvFrom:         environment,
-		VolumeMounts:    volumeMounts,
-		Image:           image.ToString(),
-		ImagePullPolicy: image.PullPolicy,
-		Env:             c.Spec.PodConfig.Spec.Env,
-		Command:         []string{"/bin/sh", "/scripts/init.sh"},
-	}
 	container := v12.Container{
-		Name:            "bk-server",
-		EnvFrom:         environment,
-		VolumeMounts:    volumeMounts,
+		Name:  bookieComponent,
+		Image: image.ToString(),
+		Command: []string{
+			"/bin/bash", "/opt/bookkeeper/entrypoint.sh",
+		},
+		Args: []string{
+			"/opt/bookkeeper/bin/bookkeeper", "bookie",
+		},
 		Ports:           containerPorts,
-		Image:           image.ToString(),
-		ImagePullPolicy: image.PullPolicy,
-		StartupProbe:    createStartupProbe(c.Spec),
+		EnvFrom:         environment,
+		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
+		Resources:       c.Spec.PodConfig.Spec.Resources,
+		VolumeMounts:    volumeMounts,
 		LivenessProbe:   createLivenessProbe(c.Spec),
 		ReadinessProbe:  createReadinessProbe(c.Spec),
-		Resources:       c.Spec.PodConfig.Spec.Resources,
-		Lifecycle:       &v12.Lifecycle{PreStop: createPreStopHandler()},
-		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
+		StartupProbe:    createStartupProbe(c.Spec),
+		ImagePullPolicy: image.PullPolicy,
 	}
-	return pod.NewSpec(c.Spec.PodConfig, volumes, []v12.Container{init}, []v12.Container{container})
+	return pod.NewSpec(c.Spec.PodConfig, volumes, nil, []v12.Container{container})
 }
 
 func createVolumeMounts(directories *v1alpha1.Directories) []v12.VolumeMount {
@@ -203,12 +201,6 @@ func createVolumeMountsFromDirs(directories []string, volumeName string) []v12.V
 		volumeMounts = append(volumeMounts, v)
 	}
 	return volumeMounts
-}
-
-func createPreStopHandler() *v12.Handler {
-	return &v12.Handler{Exec: &v12.ExecAction{
-		Command: []string{"/bin/sh", "-c", "/scripts/stop.sh"},
-	}}
 }
 
 func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
@@ -248,18 +240,16 @@ func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 }
 
 func createPersistentVolumeClaims(c *v1alpha1.BookkeeperCluster) []v12.PersistentVolumeClaim {
+	labels := c.GenerateWorkloadLabels(bookieComponent)
 	return []v12.PersistentVolumeClaim{
 		pvc.New(c.Namespace, "index",
-			c.GenerateLabels(),
-			*c.Spec.Persistence.IndexVolumeClaimSpec,
+			labels, *c.Spec.Persistence.IndexVolumeClaimSpec,
 		),
 		pvc.New(c.Namespace, "ledger",
-			c.GenerateLabels(),
-			*c.Spec.Persistence.LedgerVolumeClaimSpec,
+			labels, *c.Spec.Persistence.LedgerVolumeClaimSpec,
 		),
 		pvc.New(c.Namespace, "journal",
-			c.GenerateLabels(),
-			*c.Spec.Persistence.JournalVolumeClaimSpec,
+			labels, *c.Spec.Persistence.JournalVolumeClaimSpec,
 		),
 	}
 }

@@ -71,6 +71,12 @@ func (in *BookkeeperCluster) GenerateLabels() map[string]string {
 	return in.Spec.createLabels(in.Name)
 }
 
+func (in *BookkeeperCluster) GenerateWorkloadLabels(component string) map[string]string {
+	labels := in.GenerateLabels()
+	labels["component"] = component
+	return labels
+}
+
 func (in *BookkeeperCluster) generateName() string {
 	return in.GetName()
 }
@@ -78,6 +84,10 @@ func (in *BookkeeperCluster) generateName() string {
 // ConfigMapName defines the name of the configmap object
 func (in *BookkeeperCluster) ConfigMapName() string {
 	return in.generateName()
+}
+
+func (in *BookkeeperCluster) AutoRecoveryDeploymentName() string {
+	return fmt.Sprintf("%s-bookie-autorecovery", in.generateName())
 }
 
 // StatefulSetName defines the name of the statefulset object
