@@ -111,7 +111,7 @@ func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster, labels map[string]
 		Name:  autorecoveryComponent,
 		Image: image.ToString(),
 		Command: []string{
-			"/bin/bash", "/opt/bookkeeper/scripts/entrypoint.sh",
+			"/bin/sh", "/opt/bookkeeper/scripts/entrypoint.sh",
 		},
 		Args: []string{
 			"autorecovery",
