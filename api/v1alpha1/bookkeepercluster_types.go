@@ -120,7 +120,7 @@ func (in *BookkeeperCluster) ZkLedgersRootPath() string {
 	return fmt.Sprintf("%s/ledgers", in.ZkRootPath())
 }
 
-// ShouldDeleteStorage returns whether the PV should should be deleted or not
+// ShouldDeleteStorage returns whether the PV should be deleted or not
 func (in *BookkeeperCluster) ShouldDeleteStorage() bool {
 	return in.Spec.Persistence.ReclaimPolicy == VolumeReclaimPolicyDelete
 }
@@ -130,8 +130,7 @@ func (in *BookkeeperCluster) WaitClusterTermination(kubeClient client.Client) (e
 	config.RequireRootLogger().Info(
 		"Waiting for the cluster to terminate",
 		"cluster", in.GetName())
-	labels := in.GenerateLabels()
-	return k8s.WaitForPodsToTerminate(kubeClient, in.Namespace, labels)
+	return k8s.WaitForPodsToTerminate(kubeClient, in.Namespace, in.GenerateLabels())
 }
 
 // Image the bookkeeper docker image for the cluster

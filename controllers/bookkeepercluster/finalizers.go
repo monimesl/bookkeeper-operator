@@ -40,9 +40,10 @@ func ReconcileFinalizer(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 			return ctx.Client().Update(context.TODO(), cluster)
 		}
 	} else if oputil.Contains(cluster.Finalizers, finalizerName) {
-		if *cluster.Spec.Size > 0 {
+		if *cluster.Spec.Size > 0 || *cluster.Spec.AutoRecoveryReplicas > 0 {
 			zero := int32(0)
 			cluster.Spec.Size = &zero
+			cluster.Spec.AutoRecoveryReplicas = &zero
 			ctx.Logger().Info("Downscaling the cluster to zero to prepare delete",
 				"cluster", cluster.Name) // this gives every pod a graceful shutdown
 			if err := ctx.Client().Update(context.TODO(), cluster); err != nil {
