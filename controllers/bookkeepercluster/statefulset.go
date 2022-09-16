@@ -156,10 +156,10 @@ func createBookiePodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Name:  bookieComponent,
 		Image: image.ToString(),
 		Command: []string{
-			"/bin/bash", "/opt/bookkeeper/entrypoint.sh",
+			"/bin/bash", "/opt/bookkeeper/scripts/entrypoint.sh",
 		},
 		Args: []string{
-			"/opt/bookkeeper/bin/bookkeeper", "bookie",
+			"bookie",
 		},
 		Ports:           containerPorts,
 		EnvFrom:         environment,
