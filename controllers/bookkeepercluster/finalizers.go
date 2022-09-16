@@ -47,7 +47,7 @@ func ReconcileFinalizer(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 			ctx.Logger().Info("Downscaling the cluster to zero to prepare delete",
 				"cluster", cluster.Name) // this gives every pod a graceful shutdown
 			if err := ctx.Client().Update(context.TODO(), cluster); err != nil {
-				return fmt.Errorf("ZookkeeperCluster object (%s) update error: %w", cluster.Name, err)
+				return fmt.Errorf("BookkeeperCluster object (%s) update error: %w", cluster.Name, err)
 			}
 			return nil
 		}
