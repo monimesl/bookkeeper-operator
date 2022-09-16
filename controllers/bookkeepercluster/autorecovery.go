@@ -81,12 +81,14 @@ func createAutoRecoveryDeployment(c *v1alpha1.BookkeeperCluster) *v1.Deployment 
 	labels := c.GenerateWorkloadLabels(autorecoveryComponent)
 	dep := deployment.New(c.Namespace, c.AutoRecoveryDeploymentName(), labels, v1.DeploymentSpec{
 		Replicas: c.Spec.AutoRecoveryReplicas,
-		Selector: nil,
+		Selector: &v13.LabelSelector{
+			MatchLabels: nil,
+		},
 		Template: v12.PodTemplateSpec{
 			ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
 				c.AutoRecoveryDeploymentName(), labels,
 				c.GenerateAnnotations()),
-			Spec: createAutoRecoveryPodSpec(c),
+			Spec: createAutoRecoveryPodSpec(c, labels),
 		},
 		Strategy: v1.DeploymentStrategy{},
 	})
@@ -94,7 +96,7 @@ func createAutoRecoveryDeployment(c *v1alpha1.BookkeeperCluster) *v1.Deployment 
 	return dep
 }
 
-func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
+func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string) v12.PodSpec {
 	environment := []v12.EnvFromSource{
 		{
 			ConfigMapRef: &v12.ConfigMapEnvSource{
@@ -143,7 +145,7 @@ func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 			ActiveDeadlineSeconds: c.Spec.PodConfig.Spec.ActiveDeadlineSeconds,
 			RestartPolicy:         c.Spec.PodConfig.Spec.RestartPolicy,
 			ServiceAccountName:    c.Spec.PodConfig.Spec.ServiceAccountName,
-			Labels:                c.GenerateWorkloadLabels(autorecoveryComponent),
+			Labels:                labels,
 			NodeName:              c.Spec.PodConfig.Spec.NodeName,
 			PriorityClassName:     c.Spec.PodConfig.Spec.PriorityClassName,
 			Priority:              c.Spec.PodConfig.Spec.Priority,
