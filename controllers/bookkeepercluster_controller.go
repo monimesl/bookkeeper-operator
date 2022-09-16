@@ -53,6 +53,7 @@ func (r *BookkeeperClusterReconciler) Configure(ctx reconciler.Context) error {
 		For(&v1alpha1.BookkeeperCluster{}).
 		Owns(&v1beta1.PodDisruptionBudget{}).
 		Owns(&v12.StatefulSet{}).
+		Owns(&v12.Deployment{}).
 		Owns(&v1.ConfigMap{}).
 		Owns(&v1.Service{}).
 		Complete(r)
