@@ -82,7 +82,7 @@ func createAutoRecoveryDeployment(c *v1alpha1.BookkeeperCluster) *v1.Deployment 
 	dep := deployment.New(c.Namespace, c.AutoRecoveryDeploymentName(), labels, v1.DeploymentSpec{
 		Replicas: c.Spec.AutoRecoveryReplicas,
 		Selector: &v13.LabelSelector{
-			MatchLabels: nil,
+			MatchLabels: labels,
 		},
 		Template: v12.PodTemplateSpec{
 			ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
