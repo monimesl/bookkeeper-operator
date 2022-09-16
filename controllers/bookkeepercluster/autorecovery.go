@@ -114,7 +114,7 @@ func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster, labels map[string]
 			"/bin/sh", "/opt/bookkeeper/scripts/entrypoint.sh",
 		},
 		Args: []string{
-			"autorecovery",
+			"/opt/bookkeeper/bin/bookkeeper", "autorecovery",
 		},
 		EnvFrom:         environment,
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
