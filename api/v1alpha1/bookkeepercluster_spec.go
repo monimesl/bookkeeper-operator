@@ -38,7 +38,7 @@ const (
 )
 
 const (
-	imageRepository = "apache/bookkeeper"
+	imageRepository = "monime/bookkeeper"
 	defaultImageTag = "latest"
 )
 
@@ -67,7 +67,7 @@ const (
 )
 
 var (
-	defaultTerminationGracePeriod int64 = 30
+	defaultTerminationGracePeriod int64 = 120
 	defaultAutoRecoveryReplica          = int32(1)
 	defaultClusterSize                  = int32(minimumClusterSize)
 )
