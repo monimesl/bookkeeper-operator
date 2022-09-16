@@ -131,7 +131,7 @@ func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster, labels map[string]
 								MatchExpressions: []v13.LabelSelectorRequirement{
 									{
 										Key:      k8s.LabelAppName,
-										Operator: "in",
+										Operator: "In",
 										Values:   []string{v1alpha1.AppName},
 									},
 								},
