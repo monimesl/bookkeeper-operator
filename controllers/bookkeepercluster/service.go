@@ -91,14 +91,13 @@ func createHeadlessService(c *v1alpha1.BookkeeperCluster) *v1.Service {
 }
 
 func createService(c *v1alpha1.BookkeeperCluster, name string, hasClusterIp bool, servicePorts []v1.ServicePort) *v1.Service {
-	labels := c.GenerateWorkloadLabels(bookieComponent)
 	clusterIp := ""
 	if !hasClusterIp {
 		clusterIp = v1.ClusterIPNone
 	}
-	srv := service.New(c.Namespace, name, labels, v1.ServiceSpec{
+	srv := service.New(c.Namespace, name, c.GenerateLabels(), v1.ServiceSpec{
 		ClusterIP: clusterIp,
-		Selector:  labels,
+		Selector:  c.GenerateWorkloadLabels(bookieComponent),
 		Ports:     servicePorts,
 	})
 	srv.Annotations = c.GenerateAnnotations()
