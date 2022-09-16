@@ -90,7 +90,6 @@ func createAutoRecoveryDeployment(c *v1alpha1.BookkeeperCluster) *v1.Deployment 
 				c.GenerateAnnotations()),
 			Spec: createAutoRecoveryPodSpec(c, labels),
 		},
-		Strategy: v1.DeploymentStrategy{},
 	})
 	dep.Annotations = c.GenerateAnnotations()
 	return dep
