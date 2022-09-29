@@ -53,6 +53,21 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
+      # Bookkeeper-4.13.0
+      - uses: docker/build-push-action@v2
+        name: Build-Push-4.13.0
+        with:
+          push: true
+          build-args: |
+            bk_version=4.13.0
+          file: deployments/docker/bookkeeper/Dockerfile
+          tags: |
+            ${{ steps.prepare.outputs.image }}:4.13.0
+            ${{ steps.prepare.outputs.latest }}
+          labels: |
+            org.opencontainers.image.title=${{ github.event.repository.name }}
+            org.opencontainers.image.description=${{ github.event.repository.description }}
+
       # Bookkeeper-4.14.5
       - uses: docker/build-push-action@v2
         name: Build-Push-4.14.5
