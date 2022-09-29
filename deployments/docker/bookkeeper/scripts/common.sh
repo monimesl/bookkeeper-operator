@@ -83,7 +83,7 @@ function waitBookieInit() {
     exit 1
   fi
   retries=0
-  while [ $retries -lt 70 ]; do
+  while [ $retries -lt 100 ]; do
     sleep 2
     echo "waiting for the bookie to be ready, retry: $retries" >&2
     curl "$HOST_IP:$BOOKIE_ADMIN_PORT/api/v1/bookie/is_ready" --fail >/dev/null 2>&1
