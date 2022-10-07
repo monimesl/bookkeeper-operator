@@ -19,7 +19,6 @@ package bookkeepercluster
 import (
 	"context"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/operator-helper/basetype"
 	"github.com/monimesl/operator-helper/k8s"
 	"github.com/monimesl/operator-helper/k8s/deployment"
 	"github.com/monimesl/operator-helper/k8s/pod"
@@ -120,36 +119,30 @@ func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster, labels map[string]
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
 		ImagePullPolicy: image.PullPolicy,
 	}
-	spec := pod.NewSpec(basetype.PodConfig{
-		ObjectMeta: c.ObjectMeta,
-		Spec: basetype.PodSpec{
-			Affinity: &v12.Affinity{
-				PodAntiAffinity: &v12.PodAntiAffinity{
-					RequiredDuringSchedulingIgnoredDuringExecution: []v12.PodAffinityTerm{
-						{
-							LabelSelector: &v13.LabelSelector{
-								MatchExpressions: []v13.LabelSelectorRequirement{
-									{
-										Key:      k8s.LabelAppName,
-										Operator: "In",
-										Values:   []string{v1alpha1.AppName},
-									},
-								},
-							},
-							TopologyKey: "kubernetes.io/hostname",
-						},
+	copyConfig := c.Spec.PodConfig.DeepCopy()
+	copyConfigSpec := copyConfig.Spec
+	if copyConfigSpec.Affinity == nil {
+		copyConfigSpec.Affinity = &v12.Affinity{}
+	}
+	if copyConfigSpec.Affinity.PodAntiAffinity == nil {
+		copyConfigSpec.Affinity.PodAntiAffinity = &v12.PodAntiAffinity{}
+	}
+	copyConfigSpec.Affinity.PodAntiAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(
+		copyConfigSpec.Affinity.PodAntiAffinity.RequiredDuringSchedulingIgnoredDuringExecution,
+		v12.PodAffinityTerm{
+			LabelSelector: &v13.LabelSelector{
+				MatchExpressions: []v13.LabelSelectorRequirement{
+					{
+						Key:      k8s.LabelAppName,
+						Operator: "In",
+						Values:   []string{v1alpha1.AppName},
 					},
 				},
 			},
-			ActiveDeadlineSeconds: c.Spec.PodConfig.Spec.ActiveDeadlineSeconds,
-			RestartPolicy:         c.Spec.PodConfig.Spec.RestartPolicy,
-			ServiceAccountName:    c.Spec.PodConfig.Spec.ServiceAccountName,
-			Labels:                labels,
-			NodeName:              c.Spec.PodConfig.Spec.NodeName,
-			PriorityClassName:     c.Spec.PodConfig.Spec.PriorityClassName,
-			Priority:              c.Spec.PodConfig.Spec.Priority,
-			PreemptionPolicy:      c.Spec.PodConfig.Spec.PreemptionPolicy,
-		},
-	}, volumes, nil, []v12.Container{container})
-	return spec
+			TopologyKey: "kubernetes.io/hostname",
+		})
+	copyConfig.Labels = labels
+	copyConfigSpec.Labels = labels
+	copyConfig.Spec = copyConfigSpec
+	return pod.NewSpec(*copyConfig, volumes, nil, []v12.Container{container})
 }
