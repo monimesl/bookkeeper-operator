@@ -19,7 +19,6 @@ package bookkeepercluster
 import (
 	"context"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/operator-helper/k8s"
 	"github.com/monimesl/operator-helper/k8s/deployment"
 	"github.com/monimesl/operator-helper/k8s/pod"
 	"github.com/monimesl/operator-helper/reconciler"
@@ -87,14 +86,14 @@ func createAutoRecoveryDeployment(c *v1alpha1.BookkeeperCluster) *v1.Deployment 
 			ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
 				c.AutoRecoveryDeploymentName(), labels,
 				c.GenerateAnnotations()),
-			Spec: createAutoRecoveryPodSpec(c, labels),
+			Spec: createAutoRecoveryPodSpec(c),
 		},
 	})
 	dep.Annotations = c.GenerateAnnotations()
 	return dep
 }
 
-func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string) v12.PodSpec {
+func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	environment := []v12.EnvFromSource{
 		{
 			ConfigMapRef: &v12.ConfigMapEnvSource{
@@ -119,30 +118,5 @@ func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster, labels map[string]
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
 		ImagePullPolicy: image.PullPolicy,
 	}
-	copyConfig := c.Spec.PodConfig.DeepCopy()
-	copyConfigSpec := copyConfig.Spec
-	if copyConfigSpec.Affinity == nil {
-		copyConfigSpec.Affinity = &v12.Affinity{}
-	}
-	if copyConfigSpec.Affinity.PodAntiAffinity == nil {
-		copyConfigSpec.Affinity.PodAntiAffinity = &v12.PodAntiAffinity{}
-	}
-	copyConfigSpec.Affinity.PodAntiAffinity.RequiredDuringSchedulingIgnoredDuringExecution = append(
-		copyConfigSpec.Affinity.PodAntiAffinity.RequiredDuringSchedulingIgnoredDuringExecution,
-		v12.PodAffinityTerm{
-			LabelSelector: &v13.LabelSelector{
-				MatchExpressions: []v13.LabelSelectorRequirement{
-					{
-						Key:      k8s.LabelAppName,
-						Operator: "In",
-						Values:   []string{v1alpha1.AppName},
-					},
-				},
-			},
-			TopologyKey: "kubernetes.io/hostname",
-		})
-	copyConfig.Labels = labels
-	copyConfigSpec.Labels = labels
-	copyConfig.Spec = copyConfigSpec
-	return pod.NewSpec(*copyConfig, volumes, nil, []v12.Container{container})
+	return pod.NewSpec(c.Spec.PodConfig, volumes, nil, []v12.Container{container})
 }
