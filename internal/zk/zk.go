@@ -101,7 +101,7 @@ func (c *Client) setNodeData(path string, data []byte) (err error) {
 	config.RequireRootLogger().
 		Info("Creating the operator metadata node",
 			"path", path, "data", string(data))
-	_, stats, err := c.getNode(path)
+	stats, err := c.getNodeState(path)
 	if errors.Is(err, zk.ErrNoNode) {
 		return c.createNode(path, data)
 	} else if err != nil {
@@ -113,12 +113,12 @@ func (c *Client) setNodeData(path string, data []byte) (err error) {
 	return
 }
 
-func (c *Client) getNode(clusterNode string) ([]byte, *zk.Stat, error) {
-	data, sts, err := c.conn.Get(clusterNode)
+func (c *Client) getNodeState(clusterNode string) (*zk.Stat, error) {
+	_, sts, err := c.conn.Get(clusterNode)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	return data, sts, nil
+	return sts, nil
 }
 
 func (c *Client) createNode(path string, data []byte) error {
@@ -155,7 +155,7 @@ func (c *Client) deleteNode(path string) error {
 	config.RequireRootLogger().
 		Info("Deleting the zookeeper node",
 			"zNode", path)
-	_, stat, err := c.getNode(path)
+	stat, err := c.getNodeState(path)
 	if errors.Is(err, zk.ErrNoNode) {
 		return nil
 	} else if err != nil {

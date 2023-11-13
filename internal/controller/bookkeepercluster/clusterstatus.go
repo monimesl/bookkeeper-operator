@@ -28,6 +28,7 @@ import (
 )
 
 // ReconcileClusterStatus reconcile the status of the specified cluster
+//
 //nolint:nakedret
 func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) (err error) {
 	expectedClusterSize := int(*cluster.Spec.Size)

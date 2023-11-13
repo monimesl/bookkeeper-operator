@@ -169,8 +169,8 @@ func createBookiePodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	return pod.NewSpec(c.Spec.PodConfig, volumes, nil, []v12.Container{container})
 }
 
-func createPreStopHandler() *v12.Handler {
-	return &v12.Handler{Exec: &v12.ExecAction{
+func createPreStopHandler() *v12.LifecycleHandler {
+	return &v12.LifecycleHandler{Exec: &v12.ExecAction{
 		Command: []string{"/bin/sh", "-c", "/scripts/stop.sh"},
 	}}
 }
@@ -205,9 +205,9 @@ func createVolumeMountsFromDirs(directories []string, volumeName string) []v12.V
 }
 
 func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	probe := spec.ProbeConfig.Startup.ToK8sProbe(v12.Handler{
+	probe := spec.ProbeConfig.Startup.ToK8sProbe(v12.ProbeHandler{
 		HTTPGet: &v12.HTTPGetAction{
-			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Port: intstr.FromInt32(spec.Ports.Admin),
 			Path: "/heartbeat",
 		},
 	})
@@ -217,9 +217,9 @@ func createStartupProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 }
 
 func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	probe := spec.ProbeConfig.Readiness.ToK8sProbe(v12.Handler{
+	probe := spec.ProbeConfig.Readiness.ToK8sProbe(v12.ProbeHandler{
 		HTTPGet: &v12.HTTPGetAction{
-			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Port: intstr.FromInt32(spec.Ports.Admin),
 			Path: "/api/v1/bookie/is_ready",
 		},
 	})
@@ -229,9 +229,9 @@ func createReadinessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 }
 
 func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
-	probe := spec.ProbeConfig.Liveness.ToK8sProbe(v12.Handler{
+	probe := spec.ProbeConfig.Liveness.ToK8sProbe(v12.ProbeHandler{
 		HTTPGet: &v12.HTTPGetAction{
-			Port: intstr.FromInt(int(spec.Ports.Admin)),
+			Port: intstr.FromInt32(spec.Ports.Admin),
 			Path: "/heartbeat",
 		},
 	})

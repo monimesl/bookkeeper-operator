@@ -21,6 +21,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
+	"sigs.k8s.io/controller-runtime/pkg/webhook/admission"
 )
 
 // SetupWebhookWithManager needed for webhook test suite
@@ -50,25 +51,25 @@ func (in *BookkeeperCluster) Default() {
 var _ webhook.Validator = &BookkeeperCluster{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (in *BookkeeperCluster) ValidateCreate() error {
+func (in *BookkeeperCluster) ValidateCreate() (admission.Warnings, error) {
 	config.RequireRootLogger().Info("validate create", "name", in.Name)
 
 	// TODO(user): fill in your validation logic upon object creation.
-	return nil
+	return nil, nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (in *BookkeeperCluster) ValidateUpdate(old runtime.Object) error {
+func (in *BookkeeperCluster) ValidateUpdate(old runtime.Object) (admission.Warnings, error) {
 	config.RequireRootLogger().Info("validate update", "name", in.Name)
 
 	// TODO(user): fill in your validation logic upon object update.
-	return nil
+	return nil, nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (in *BookkeeperCluster) ValidateDelete() error {
+func (in *BookkeeperCluster) ValidateDelete() (admission.Warnings, error) {
 	config.RequireRootLogger().Info("validate delete", "name", in.Name)
 
 	// TODO(user): fill in your validation logic upon object deletion.
-	return nil
+	return nil, nil
 }

@@ -1,10 +1,12 @@
 apiVersion: bookkeeper.monime.sl/v1alpha1
 kind: BookkeeperCluster
 metadata:
-  name: cluster-1
-  namespace: bookkeeper
+  labels:
+    app.kubernetes.io/name: bookkeepercluster
+    app.kubernetes.io/instance: bookkeepercluster-sample
+    app.kubernetes.io/part-of: bookkeeper-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: bookkeeper-operator
+  name: bookkeepercluster-sample
 spec:
-  size: 3
-  imagePullPolicy: "Always"
-  bookkeeperVersion: "4.11.1"
-  zkServers: "cluster-1-zk-headless.zookeeper.svc.cluster.local:2181"
+# TODO(user): Add fields here

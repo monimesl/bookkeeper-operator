@@ -18,6 +18,7 @@ package main
 
 import (
 	"github.com/monimesl/bookkeeper-operator/internal"
+	"github.com/monimesl/bookkeeper-operator/internal/controller"
 	"github.com/monimesl/operator-helper/config"
 	"github.com/monimesl/operator-helper/reconciler"
 	"github.com/monimesl/operator-helper/webhook"
@@ -26,7 +27,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	bookkeeperv1alpha1 "github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/bookkeeper-operator/controllers"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -55,7 +55,7 @@ func main() {
 		log.Fatalf("webhook config error: %s", err)
 	}
 	if err = reconciler.Configure(mgr,
-		&controllers.BookkeeperClusterReconciler{}); err != nil {
+		&controller.BookkeeperClusterReconciler{}); err != nil {
 		log.Fatalf("reconciler cfg error: %s", err)
 	}
 	if err = mgr.Start(ctrl.SetupSignalHandler()); err != nil {

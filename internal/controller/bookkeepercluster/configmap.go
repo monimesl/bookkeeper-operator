@@ -20,10 +20,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
+	"github.com/monimesl/operator-helper/config"
 	"github.com/monimesl/operator-helper/k8s/configmap"
 	"github.com/monimesl/operator-helper/oputil"
 	"github.com/monimesl/operator-helper/reconciler"
-	"github.com/prometheus/common/log"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"strconv"
@@ -94,7 +94,7 @@ func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 			k = fmt.Sprintf("BK_%s", k)
 		}
 		if oputil.Contains(excludedOptions, k) {
-			log.Warnf("ignoring the config: %s", k)
+			config.RequireRootLogger().Info("ignoring the config", "config", k)
 			continue
 		}
 		data[k] = v

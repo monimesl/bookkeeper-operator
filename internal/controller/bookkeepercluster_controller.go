@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package controllers
+package controller
 
 import (
 	"context"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/bookkeeper-operator/controllers/bookkeepercluster"
+	bookkeepercluster2 "github.com/monimesl/bookkeeper-operator/internal/controller/bookkeepercluster"
 	"github.com/monimesl/operator-helper/reconciler"
 	v12 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
@@ -31,13 +31,13 @@ var (
 	_              reconciler.Context    = &BookkeeperClusterReconciler{}
 	_              reconciler.Reconciler = &BookkeeperClusterReconciler{}
 	reconcileFuncs                       = []func(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) error{
-		bookkeepercluster.ReconcilePodDisruptionBudget,
-		bookkeepercluster.ReconcileConfigMap,
-		bookkeepercluster.ReconcileServices,
-		bookkeepercluster.ReconcileStatefulSet,
-		bookkeepercluster.ReconcileAutoRecovery,
-		bookkeepercluster.ReconcileClusterStatus,
-		bookkeepercluster.ReconcileFinalizer,
+		bookkeepercluster2.ReconcilePodDisruptionBudget,
+		bookkeepercluster2.ReconcileConfigMap,
+		bookkeepercluster2.ReconcileServices,
+		bookkeepercluster2.ReconcileStatefulSet,
+		bookkeepercluster2.ReconcileAutoRecovery,
+		bookkeepercluster2.ReconcileClusterStatus,
+		bookkeepercluster2.ReconcileFinalizer,
 	}
 )
 

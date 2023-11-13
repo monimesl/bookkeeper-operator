@@ -15,8 +15,8 @@
  */
 
 // Package v1alpha1 contains API Schema definitions for the bookkeeper.monime.sl v1alpha1 API group
-//+kubebuilder:object:generate=true
-//+groupName=bookkeeper.monime.sl
+// +kubebuilder:object:generate=true
+// +groupName=bookkeeper.monime.sl
 package v1alpha1
 
 import (
