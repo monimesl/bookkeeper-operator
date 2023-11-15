@@ -21,46 +21,15 @@ set -x -e
 source /opt/bookkeeper/scripts/common.sh >/dev/null
 
 HOST_IP=$(hostname -i)
-HOSTNAME=$(hostname -s)
 ZK_URL=${BK_zkServers:-127.0.0.1:2181}
 BOOKIE_ADMIN_PORT=${BK_httpServerPort:-8080}
 LEDGERS_ROOT=${BK_zkLedgersRootPath:-"/ledgers"}
-
-# Extract resource name and this members ordinal value from the pod's hostname
-if [[ $HOSTNAME =~ (.*)-([0-9]+)$ ]]; then
-  MY_ORDINAL=$((BASH_REMATCH[2]))
-else
-  echo "WARNING: Unexpected hostname: \"$HOSTNAME\". Expecting to match the regex: (.*)-([0-9]+)$"
-  MY_ORDINAL=0
-fi
 
 ZK_HOST=${ZK_URL%%:*}
 ZK_PORT=${ZK_URL##*:}
 BK_PORT=${BK_bookiePort:-3181}
 
-export MY_ORDINAL HOSTNAME HOST_IP ZK_HOST ZK_PORT BK_PORT BOOKIE_ADMIN_PORT
-
-function deleteCookie() {
-  set +e
-  cookieZkPath="${LEDGERS_ROOT}/cookies/$(hostname -f):${BK_PORT}"
-  retries=0
-  while [ $retries -lt 5 ]; do
-    sleep 2
-    echo "deleting cookie '${cookieZkPath}', retry: $retries"
-    res=$(zk-shell --run-once "rm $cookieZkPath" "$ZK_URL")
-    if [[ "$res" == "" ]]; then
-      echo "The node cookie was deleted successfully!"
-      return
-    elif [[ "$res" =~ "exist" ]]; then
-      echo "The node cookie does not exists"
-      return
-    fi
-    retries=$((retries + 1))
-  done
-  set -e
-  echo "Unable do delete cookie at '${cookieZkPath}" >&2
-  exit 1
-}
+export HOST_IP ZK_HOST ZK_PORT BK_PORT BOOKIE_ADMIN_PORT
 
 function waitBookieInit() {
   set +e
@@ -96,21 +65,5 @@ function waitBookieInit() {
   done
   echo "tired of waiting for bookie to be ready" >&2
   exit 1
-  set -e
-}
-
-function decommissionBookie() {
-  set +e
-  retries=10
-  while [ $retries -lt 3 ]; do
-    echo "Decommissioning this bookie with ordinal $MY_ORDINAL from the cluster: $CLUSTER_NAME. retries=$retries"
-    /opt/bookkeeper/bin/bookkeeper shell decommissionbookie
-    # shellcheck disable=SC2181
-    if [[ $? -eq 0 ]]; then
-      return
-    fi
-    retries=$((retries + 1))
-    sleep 1
-  done
   set -e
 }

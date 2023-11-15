@@ -121,3 +121,21 @@ jobs:
             org.opencontainers.image.version=${{ steps.prepare.outputs.version }}
             org.opencontainers.image.created=${{ steps.prepare.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
+
+      # Bookkeeper-4.15.4
+      - uses: docker/build-push-action@v2
+        name: Build-Push-4.15.4
+        with:
+          push: true
+          build-args: |
+            bk_version=4.15.4
+          file: deployments/docker/bookkeeper/Dockerfile
+          tags: |
+            ${{ steps.prepare.outputs.image }}:4.15.4
+            ${{ steps.prepare.outputs.latest }}
+          labels: |
+            org.opencontainers.image.title=${{ github.event.repository.name }}
+            org.opencontainers.image.description=${{ github.event.repository.description }}
+            org.opencontainers.image.version=${{ steps.prepare.outputs.version }}
+            org.opencontainers.image.created=${{ steps.prepare.outputs.created }}
+            org.opencontainers.image.revision=${{ github.sha }}

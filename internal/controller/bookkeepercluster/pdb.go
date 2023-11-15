@@ -88,5 +88,5 @@ func createPodDisruptionBudget(cluster *v1alpha1.BookkeeperCluster) *v1.PodDisru
 }
 
 func getMaxFailureNodes(cluster *v1alpha1.BookkeeperCluster) intstr.IntOrString {
-	return intstr.FromInt(int(cluster.Spec.MaxUnavailableNodes))
+	return intstr.FromInt32(cluster.Spec.MaxUnavailableNodes)
 }

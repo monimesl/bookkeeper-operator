@@ -157,7 +157,7 @@ func createBookiePodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		Image:           image.ToString(),
 		Ports:           containerPorts,
 		EnvFrom:         environment,
-		Lifecycle:       &v12.Lifecycle{PreStop: createPreStopHandler()},
+		Lifecycle:       &v12.Lifecycle{},
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
 		Resources:       c.Spec.PodConfig.Spec.Resources,
 		VolumeMounts:    volumeMounts,
@@ -167,12 +167,6 @@ func createBookiePodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 		ImagePullPolicy: image.PullPolicy,
 	}
 	return pod.NewSpec(c.Spec.PodConfig, volumes, nil, []v12.Container{container})
-}
-
-func createPreStopHandler() *v12.LifecycleHandler {
-	return &v12.LifecycleHandler{Exec: &v12.ExecAction{
-		Command: []string{"/bin/sh", "-c", "/scripts/stop.sh"},
-	}}
 }
 
 func createVolumeMounts(directories *v1alpha1.Directories) []v12.VolumeMount {

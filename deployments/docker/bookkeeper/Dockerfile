@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
-ARG bk_version=4.13.0
+ARG bk_version=4.15.4
 FROM apache/bookkeeper:${bk_version}
 ARG BK_USER=bookkeeper
 RUN set -x \
