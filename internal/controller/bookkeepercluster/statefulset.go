@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	probeInitialDelaySeconds = 210
+	probeInitialDelaySeconds = 120
 	probeFailureThreshold    = 15
 	bookieComponent          = "bookie"
 )
