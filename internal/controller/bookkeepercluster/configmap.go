@@ -60,6 +60,7 @@ func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 	excludedOptions := []string{
 		"BK_zkServers", "BK_zkLedgersRootPath", "BK_httpServerEnabled", "BK_httpServerPort", "BK_enableStatistics",
 		"BOOKIE_PORT", "BOOKIE_GC_OPTS", "BOOKIE_MEM_OPTS", "BOOKIE_EXTRA_OPTS", "BOOKIE_GC_LOGGING_OPTS",
+		"BK_journalDirectories", "BK_ledgerDirectories", "BK_indexDirectories",
 	}
 	autoRecovery := true
 	if c.Spec.EnableAutoRecovery != nil {
@@ -74,6 +75,9 @@ func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		"BK_CLUSTER_ROOT_PATH":          c.ZkRootPath(),
 		"BK_zkServers":                  c.Spec.ZkServers,
 		"BK_zkLedgersRootPath":          c.ZkLedgersRootPath(),
+		"BK_indexDirectories":           c.Spec.Directories.IndexDirs,
+		"BK_ledgerDirectories":          c.Spec.Directories.LedgerDirs,
+		"BK_journalDirectories":         c.Spec.Directories.JournalDir,
 		"BK_autoRecoveryDaemonEnabled":  strconv.FormatBool(autoRecovery),
 		"BK_httpServerPort":             fmt.Sprintf("%d", c.Spec.Ports.Admin),
 		"BK_prometheusStatsHttpPort":    fmt.Sprintf("%d", c.Spec.Ports.Metrics),
