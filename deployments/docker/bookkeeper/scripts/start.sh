@@ -16,22 +16,8 @@
 # limitations under the License.
 #
 
-source /scripts/common.sh
-
 set -e -x -m
 
-printf "Starting the bookie in the background.\n"
+printf "Starting the bookie.\n"
 
-/scripts/entrypoint.sh bookie &
-PID=$! && JOB=$(jobs -l | grep $PID | cut -d"[" -f2 | cut -d"]" -f1)
-
-# wait for the bookie to initialize
-waitBookieInit
-
-printf "Probing whether the bookie is alive\n"
-
-netstat -ltn 2>/dev/null | grep "$BK_PORT"
-
-printf "The bookie was successfully started. 👍 \n"
-
-fg "$JOB"
+/scripts/entrypoint.sh bookie
