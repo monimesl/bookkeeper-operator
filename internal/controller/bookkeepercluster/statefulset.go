@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
+	"github.com/monimesl/operator-helper/k8s"
 	"github.com/monimesl/operator-helper/k8s/pod"
 	"github.com/monimesl/operator-helper/k8s/pvc"
 	"github.com/monimesl/operator-helper/k8s/statefulset"
@@ -49,7 +50,7 @@ func ReconcileStatefulSet(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCl
 	}, sts,
 		// Found
 		func() error {
-			if *cluster.Spec.Size != *sts.Spec.Replicas {
+			if shouldUpdateStatefulSet(cluster.Spec, sts) {
 				if err := updateStatefulset(ctx, sts, cluster); err != nil {
 					return err
 				}
@@ -76,6 +77,16 @@ func ReconcileStatefulSet(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCl
 				"StatefulSet.Namespace", sts.GetNamespace())
 			return nil
 		})
+}
+
+func shouldUpdateStatefulSet(spec v1alpha1.BookkeeperClusterSpec, sts *v1.StatefulSet) bool {
+	if *spec.Size != *sts.Spec.Replicas {
+		return true
+	}
+	if spec.BookkeeperVersion != sts.Labels[k8s.LabelAppVersion] {
+		return true
+	}
+	return false
 }
 
 func updateStatefulset(ctx reconciler.Context, sts *v1.StatefulSet, cluster *v1alpha1.BookkeeperCluster) error {
@@ -117,7 +128,7 @@ func updateStatefulsetPVCs(ctx reconciler.Context, sts *v1.StatefulSet, cluster 
 }
 
 func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
-	labels := c.GenerateWorkloadLabels(bookieComponent)
+	labels := getBookieSelectorLabels(c)
 	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(),
 		labels, createPersistentVolumeClaims(c), createPodTemplateSpec(c))
 	sts := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
@@ -128,7 +139,7 @@ func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster) v12.PodTemplateSpec {
 	return v12.PodTemplateSpec{
 		ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
-			c.StatefulSetName(), c.GenerateWorkloadLabels(bookieComponent),
+			c.StatefulSetName(), getBookieSelectorLabels(c),
 			c.GenerateAnnotations()),
 		Spec: createBookiePodSpec(c),
 	}
@@ -235,7 +246,7 @@ func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 }
 
 func createPersistentVolumeClaims(c *v1alpha1.BookkeeperCluster) []v12.PersistentVolumeClaim {
-	labels := c.GenerateWorkloadLabels(bookieComponent)
+	labels := getBookieSelectorLabels(c)
 	return []v12.PersistentVolumeClaim{
 		pvc.New(c.Namespace, "index",
 			labels, *c.Spec.Persistence.IndexVolumeClaimSpec,

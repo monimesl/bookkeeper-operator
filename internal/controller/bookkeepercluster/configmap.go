@@ -37,7 +37,13 @@ func ReconcileConfigMap(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 		Name:      cluster.ConfigMapName(),
 		Namespace: cluster.Namespace,
 	}, cm,
-		nil,
+		// Found
+		func() error {
+			if err := updateConfigmap(ctx, cm, cluster); err != nil {
+				return err
+			}
+			return nil
+		},
 		// Not Found
 		func() (err error) {
 			cm = createConfigMap(cluster)
@@ -56,6 +62,22 @@ func ReconcileConfigMap(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 }
 
 func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
+	data := createConfigmapData(c)
+	cm := configmap.New(c.Namespace, c.ConfigMapName(), data)
+	cm.Labels = c.GenerateLabels()
+	return cm
+}
+
+func updateConfigmap(ctx reconciler.Context, cm *v1.ConfigMap, c *v1alpha1.BookkeeperCluster) error {
+	ctx.Logger().Info("Updating the bookkeeper configmap.",
+		"configMap.Name", cm.GetName(),
+		"ConfigMap.Namespace", cm.GetNamespace(), "NewReplicas", c.Spec.Size)
+	cm.Labels = c.GenerateLabels()
+	cm.Data = createConfigmapData(c)
+	return ctx.Client().Update(context.TODO(), cm)
+}
+
+func createConfigmapData(c *v1alpha1.BookkeeperCluster) map[string]string {
 	jvmOptions := c.Spec.JVMOptions
 	excludedOptions := []string{
 		"BK_zkServers", "BK_zkLedgersRootPath", "BK_httpServerEnabled", "BK_httpServerPort", "BK_enableStatistics",
@@ -103,5 +125,5 @@ func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {
 		}
 		data[k] = v
 	}
-	return configmap.New(c.Namespace, c.ConfigMapName(), data)
+	return data
 }

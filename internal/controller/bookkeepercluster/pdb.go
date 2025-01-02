@@ -19,6 +19,7 @@ package bookkeepercluster
 import (
 	"context"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
+	"github.com/monimesl/operator-helper/k8s"
 	"github.com/monimesl/operator-helper/reconciler"
 	v1 "k8s.io/api/policy/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,15 +40,11 @@ func reconcilePodDisruptionBudget(ctx reconciler.Context, cluster *v1alpha1.Book
 	}, pdb,
 		func() error {
 			// Found
-			newMaxFailureNodes := getMaxFailureNodes(cluster)
-			if newMaxFailureNodes.IntVal != pdb.Spec.MaxUnavailable.IntVal {
-				pdb.Spec.MaxUnavailable.IntVal = newMaxFailureNodes.IntVal
-				ctx.Logger().Info("Updating the bookkeeper poddisruptionbudget for cluster",
-					"cluster", cluster.Name,
-					"PodDisruptionBudget.Name", pdb.GetName(),
-					"PodDisruptionBudget.Namespace", pdb.GetNamespace(),
-					"MaxUnavailable", pdb.Spec.MaxUnavailable.IntVal)
-				return ctx.Client().Update(context.TODO(), pdb)
+			if shouldUpdatePDB(cluster.Spec, pdb) {
+				if err = updatePodDisruptionBudget(ctx, pdb, cluster); err != nil {
+					return err
+				}
+				return nil
 			}
 			return nil
 		},
@@ -68,25 +65,46 @@ func reconcilePodDisruptionBudget(ctx reconciler.Context, cluster *v1alpha1.Book
 }
 
 func createPodDisruptionBudget(cluster *v1alpha1.BookkeeperCluster) *v1.PodDisruptionBudget {
-	maxFailureNodes := getMaxFailureNodes(cluster)
+	maxFailureNodes := intstr.FromInt32(cluster.Spec.MaxUnavailableNodes)
 	return &v1.PodDisruptionBudget{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "PodDisruptionBudget",
 			APIVersion: "policy/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Namespace: cluster.Namespace,
 			Name:      cluster.Name,
+			Namespace: cluster.Namespace,
+			Labels:    cluster.GenerateLabels(),
 		},
 		Spec: v1.PodDisruptionBudgetSpec{
 			MaxUnavailable: &maxFailureNodes,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: cluster.GenerateLabels(),
+				MatchLabels: getBookieSelectorLabels(cluster),
 			},
 		},
 	}
 }
 
-func getMaxFailureNodes(cluster *v1alpha1.BookkeeperCluster) intstr.IntOrString {
-	return intstr.FromInt32(cluster.Spec.MaxUnavailableNodes)
+func updatePodDisruptionBudget(ctx reconciler.Context, pdb *v1.PodDisruptionBudget, c *v1alpha1.BookkeeperCluster) error {
+	newMaxFailureNodes := intstr.FromInt32(c.Spec.MaxUnavailableNodes)
+	pdb.Labels = c.GenerateLabels()
+	pdb.Spec.MaxUnavailable.IntVal = newMaxFailureNodes.IntVal
+	pdb.Spec.Selector.MatchLabels = getBookieSelectorLabels(c)
+	ctx.Logger().Info("Updating the bookkeeper poddisruptionbudget for cluster",
+		"cluster", c.Name,
+		"PodDisruptionBudget.Name", pdb.GetName(),
+		"PodDisruptionBudget.Namespace", pdb.GetNamespace(),
+		"MaxUnavailable", pdb.Spec.MaxUnavailable.IntVal)
+	return ctx.Client().Update(context.TODO(), pdb)
+}
+
+func shouldUpdatePDB(spec v1alpha1.BookkeeperClusterSpec, pdb *v1.PodDisruptionBudget) bool {
+	if spec.BookkeeperVersion != pdb.Labels[k8s.LabelAppVersion] {
+		return true
+	}
+	newMaxFailureNodes := intstr.FromInt32(spec.MaxUnavailableNodes)
+	if newMaxFailureNodes.IntVal != pdb.Spec.MaxUnavailable.IntVal {
+		return true
+	}
+	return false
 }
