@@ -20,7 +20,6 @@ ARG bk_version=4.15.4
 FROM apache/bookkeeper:${bk_version}
 ARG BK_USER=bookkeeper
 RUN set -x \
-    && adduser "${BK_USER}" \
     && apt-get update \
     && apt-get install -y netcat \
     && apt-get install -y lsof \
