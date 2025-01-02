@@ -139,10 +139,12 @@ func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 }
 
 func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string) v12.PodTemplateSpec {
+	annotations := c.GenerateAnnotations()
+	annotations["pod.alpha.kubernetes.io/initialized"] = "true"
 	return v12.PodTemplateSpec{
 		ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
 			c.StatefulSetName(), labels,
-			c.GenerateAnnotations()),
+			annotations),
 		Spec: createBookiePodSpec(c),
 	}
 }
