@@ -166,11 +166,17 @@ func createBookiePodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {
 	volumes := make([]v12.Volume, 0)
 	volumeMounts := createVolumeMounts(c.Spec.Directories)
 	container := v12.Container{
-		Name:            bookieComponent,
-		Image:           image.ToString(),
-		Ports:           containerPorts,
-		EnvFrom:         environment,
-		Lifecycle:       &v12.Lifecycle{},
+		Name:      bookieComponent,
+		Image:     image.ToString(),
+		Ports:     containerPorts,
+		EnvFrom:   environment,
+		Lifecycle: &v12.Lifecycle{},
+		Command: []string{
+			"/bin/bash", "/opt/bookkeeper/scripts/entrypoint.sh",
+		},
+		Args: []string{
+			"/opt/bookkeeper/bin/bookkeeper", "bookie",
+		},
 		Env:             pod.DecorateContainerEnvVars(true, c.Spec.PodConfig.Spec.Env...),
 		Resources:       c.Spec.PodConfig.Spec.Resources,
 		VolumeMounts:    volumeMounts,
