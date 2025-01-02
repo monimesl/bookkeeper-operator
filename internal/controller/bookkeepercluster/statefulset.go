@@ -91,6 +91,8 @@ func shouldUpdateStatefulSet(spec v1alpha1.BookkeeperClusterSpec, sts *v1.Statef
 
 func updateStatefulset(ctx reconciler.Context, sts *v1.StatefulSet, cluster *v1alpha1.BookkeeperCluster) error {
 	sts.Spec.Replicas = cluster.Spec.Size
+	sts.Labels = cluster.GenerateLabels()
+	sts.Spec.Selector.MatchLabels = getBookieSelectorLabels(cluster)
 	ctx.Logger().Info("Updating the bookkeeper statefulset.",
 		"StatefulSet.Name", sts.GetName(),
 		"StatefulSet.Namespace", sts.GetNamespace(), "NewReplicas", cluster.Spec.Size)
