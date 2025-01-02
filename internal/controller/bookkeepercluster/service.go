@@ -131,8 +131,5 @@ func servicePorts(c *v1alpha1.BookkeeperCluster) []v1.ServicePort {
 }
 
 func shouldUpdateService(spec v1alpha1.BookkeeperClusterSpec, sts *v1.Service) bool {
-	if spec.BookkeeperVersion != sts.Labels[k8s.LabelAppVersion] {
-		return true
-	}
-	return false
+	return spec.BookkeeperVersion != sts.Labels[k8s.LabelAppVersion]
 }

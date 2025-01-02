@@ -103,8 +103,5 @@ func shouldUpdatePDB(spec v1alpha1.BookkeeperClusterSpec, pdb *v1.PodDisruptionB
 		return true
 	}
 	newMaxFailureNodes := intstr.FromInt32(spec.MaxUnavailableNodes)
-	if newMaxFailureNodes.IntVal != pdb.Spec.MaxUnavailable.IntVal {
-		return true
-	}
-	return false
+	return newMaxFailureNodes.IntVal != pdb.Spec.MaxUnavailable.IntVal
 }
