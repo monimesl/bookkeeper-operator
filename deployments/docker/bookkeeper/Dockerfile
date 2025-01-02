@@ -20,9 +20,9 @@ ARG bk_version=4.15.4
 FROM apache/bookkeeper:${bk_version}
 ARG BK_USER=bookkeeper
 RUN set -x \
-    && yum -y install nc \
-    && yum -y install lsof \
-    && yum -y install net-tools
+    && apt-get install nc \
+    && apt-get install lsof \
+    && apt-get install net-tools
 
 WORKDIR /opt/bookkeeper
 
