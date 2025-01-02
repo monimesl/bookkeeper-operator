@@ -130,16 +130,16 @@ func updateStatefulsetPVCs(ctx reconciler.Context, sts *v1.StatefulSet, cluster 
 func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
 	labels := getBookieSelectorLabels(c)
 	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(),
-		labels, createPersistentVolumeClaims(c), createPodTemplateSpec(c))
-	sts := statefulset.New(c.Namespace, c.StatefulSetName(), labels, spec)
+		labels, createPersistentVolumeClaims(c), createPodTemplateSpec(c, labels))
+	sts := statefulset.New(c.Namespace, c.StatefulSetName(), c.GenerateLabels(), spec)
 	sts.Annotations = c.GenerateAnnotations()
 	return sts
 }
 
-func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster) v12.PodTemplateSpec {
+func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string) v12.PodTemplateSpec {
 	return v12.PodTemplateSpec{
 		ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
-			c.StatefulSetName(), getBookieSelectorLabels(c),
+			c.StatefulSetName(), labels,
 			c.GenerateAnnotations()),
 		Spec: createBookiePodSpec(c),
 	}
