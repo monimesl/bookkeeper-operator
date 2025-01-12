@@ -137,5 +137,13 @@ func createConfigmapData(c *v1alpha1.BookkeeperCluster) map[string]string {
 		}
 		data[k] = v
 	}
+	for k, v := range data {
+		v = strings.TrimSpace(v)
+		if v == "" {
+			delete(data, k)
+			continue
+		}
+		data[k] = v
+	}
 	return data
 }
