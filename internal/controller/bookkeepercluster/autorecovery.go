@@ -19,7 +19,6 @@ package bookkeepercluster
 import (
 	"context"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/operator-helper/k8s/deployment"
 	"github.com/monimesl/operator-helper/k8s/pod"
 	"github.com/monimesl/operator-helper/reconciler"
 	v1 "k8s.io/api/apps/v1"
@@ -76,21 +75,31 @@ func updateAutoRecoveryDeployment(
 }
 
 func createAutoRecoveryDeployment(c *v1alpha1.BookkeeperCluster) *v1.Deployment {
+	name := c.AutoRecoveryDeploymentName()
 	labels := c.GenerateWorkloadLabels(autorecoveryComponent)
-	dep := deployment.New(c.Namespace, c.AutoRecoveryDeploymentName(), labels, v1.DeploymentSpec{
-		Replicas: c.Spec.AutoRecoveryReplicas,
-		Selector: &v13.LabelSelector{
-			MatchLabels: labels,
+	return &v1.Deployment{
+		TypeMeta: v13.TypeMeta{
+			Kind:       "Deployment",
+			APIVersion: "apps/v1",
 		},
-		Template: v12.PodTemplateSpec{
-			ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
-				c.AutoRecoveryDeploymentName(), labels,
-				c.GenerateAnnotations()),
-			Spec: createAutoRecoveryPodSpec(c),
+		ObjectMeta: v13.ObjectMeta{
+			Namespace:   c.Namespace,
+			Name:        name,
+			Labels:      labels,
+			Annotations: c.GenerateAnnotations(),
 		},
-	})
-	dep.Annotations = c.GenerateAnnotations()
-	return dep
+		Spec: v1.DeploymentSpec{
+			Replicas: c.Spec.AutoRecoveryReplicas,
+			Selector: &v13.LabelSelector{
+				MatchLabels: labels,
+			},
+			Template: v12.PodTemplateSpec{
+				ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, name, "", labels,
+					c.GenerateAnnotations()),
+				Spec: createAutoRecoveryPodSpec(c),
+			},
+		},
+	}
 }
 
 func createAutoRecoveryPodSpec(c *v1alpha1.BookkeeperCluster) v12.PodSpec {

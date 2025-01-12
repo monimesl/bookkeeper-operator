@@ -58,8 +58,10 @@ type BookkeeperClusterStatus struct {
 
 // Metadata defines the metadata status of the cluster
 type Metadata struct {
-	Size                  int32   `json:"size,omitempty"`
-	ServiceMonitorVersion *string `json:"serviceMonitorVersion,omitempty"`
+	Size                  int32             `json:"size,omitempty"`
+	BkVersion             string            `json:"bkVersion,omitempty"`
+	BkConfig              map[string]string `json:"bkConfig,omitempty"`
+	ServiceMonitorVersion *string           `json:"serviceMonitorVersion,omitempty"`
 }
 
 // Membership is the status of the members within the cluster

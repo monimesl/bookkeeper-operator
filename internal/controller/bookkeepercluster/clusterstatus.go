@@ -23,24 +23,22 @@ import (
 	"github.com/monimesl/bookkeeper-operator/internal/zk"
 	"github.com/monimesl/operator-helper/k8s/pod"
 	"github.com/monimesl/operator-helper/reconciler"
-	v1 "k8s.io/api/apps/v1"
-	"k8s.io/apimachinery/pkg/types"
 )
 
 // ReconcileClusterStatus reconcile the status of the specified cluster
 //
 //nolint:nakedret
 func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) (err error) {
-	expectedClusterSize := int(*cluster.Spec.Size)
-	labels := cluster.GenerateLabels()
 	err = updateMetadata(ctx, cluster)
 	if err != nil {
 		return err
 	}
+	labels := cluster.GenerateLabels()
 	readyReplicas, unreadyReplicas, err := pod.ListAllWithMatchingLabelsByReadiness(ctx.Client(), cluster.Name, labels)
 	if err != nil {
 		return err
 	}
+	expectedClusterSize := int(*cluster.Spec.Size)
 	switch {
 	case expectedClusterSize == len(readyReplicas):
 		cluster.Status.SetPodsReadyConditionTrue()
@@ -67,22 +65,33 @@ func ReconcileClusterStatus(ctx reconciler.Context, cluster *v1alpha1.Bookkeeper
 	return
 }
 
-func updateMetadata(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCluster) error {
-	if *cluster.Spec.Size != cluster.Status.Metadata.Size {
-		ctx.Logger().Info("Setting the cluster metadata",
-			"cluster", cluster.Name)
-		sts := &v1.StatefulSet{}
-		return ctx.GetResource(types.NamespacedName{
-			Name:      cluster.StatefulSetName(),
-			Namespace: cluster.Namespace,
-		}, sts,
-			func() (err error) {
-				if err = zk.UpdateMetadata(cluster); err == nil {
-					cluster.Status.Metadata.Size = *cluster.Spec.Size
-					err = ctx.Client().Status().Update(context.TODO(), cluster)
+func updateMetadata(ctx reconciler.Context, c *v1alpha1.BookkeeperCluster) error {
+	if *c.Spec.Size != c.Status.Metadata.Size ||
+		!mapEqual(c.Spec.BkConfig, c.Status.Metadata.BkConfig) ||
+		c.Spec.BookkeeperVersion != c.Status.Metadata.BkVersion {
+		ctx.Logger().Info("Reconciling the cluster status data",
+			"cluster", c.GetName(), "deletionTimestamp", c.DeletionTimestamp,
+			"specSize", c.Spec.Size, "specVersion", c.Spec.BookkeeperVersion, "specConfig", c.Spec.BkConfig,
+			"status", c.Status)
+		// Update metadata only if the cluster is not being deleted
+		if c.DeletionTimestamp.IsZero() {
+			c.Status.Metadata.Size = *c.Spec.Size
+			c.Status.Metadata.BkConfig = c.Spec.BkConfig
+			c.Status.Metadata.BkVersion = c.Spec.BookkeeperVersion
+			if *c.Spec.Size != c.Status.Metadata.Size {
+				ctx.Logger().Info("Updating the cluster status bookkeeper metadata",
+					"cluster", c.GetName(), "specSize", *c.Spec.Size,
+					"statusSize", c.Status.Metadata.Size)
+				if err := zk.UpdateMetadata(c); err != nil {
+					return err
 				}
-				return
-			}, nil)
+			}
+			ctx.Logger().Info("Updating the cluster status", "cluster", c.GetName(), "status", c.Status)
+			if err := ctx.Client().Status().Update(context.TODO(), c); err != nil {
+				ctx.Logger().Info("Error updating the cluster status", "error", err)
+				return err
+			}
+		}
 	}
 	return nil
 }

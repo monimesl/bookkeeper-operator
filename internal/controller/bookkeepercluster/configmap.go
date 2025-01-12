@@ -39,8 +39,10 @@ func ReconcileConfigMap(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 	}, cm,
 		// Found
 		func() error {
-			if err := updateConfigmap(ctx, cm, cluster); err != nil {
-				return err
+			if shouldUpdateConfigmap(ctx, cluster) {
+				if err := updateConfigmap(ctx, cm, cluster); err != nil {
+					return err
+				}
 			}
 			return nil
 		},
@@ -59,6 +61,16 @@ func ReconcileConfigMap(ctx reconciler.Context, cluster *v1alpha1.BookkeeperClus
 			}
 			return
 		})
+}
+
+func shouldUpdateConfigmap(ctx reconciler.Context, c *v1alpha1.BookkeeperCluster) bool {
+	if !mapEqual(c.Spec.BkConfig, c.Status.Metadata.BkConfig) {
+		ctx.Logger().Info("Bookkeeper cluster config changed",
+			"from", c.Status.Metadata.BkConfig, "to", c.Spec.BkConfig,
+		)
+		return true
+	}
+	return false
 }
 
 func createConfigMap(c *v1alpha1.BookkeeperCluster) *v1.ConfigMap {

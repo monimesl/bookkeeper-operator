@@ -19,7 +19,6 @@ package bookkeepercluster
 import (
 	"context"
 	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/operator-helper/k8s"
 	"github.com/monimesl/operator-helper/k8s/service"
 	"github.com/monimesl/operator-helper/reconciler"
 	v1 "k8s.io/api/core/v1"
@@ -64,15 +63,7 @@ func reconcileHeadlessService(ctx reconciler.Context, cluster *v1alpha1.Bookkeep
 		Name:      cluster.HeadlessServiceName(),
 		Namespace: cluster.Namespace,
 	}, svc,
-		// Found
-		func() error {
-			if shouldUpdateService(cluster.Spec, svc) {
-				if err := updateService(ctx, svc, cluster); err != nil {
-					return err
-				}
-			}
-			return nil
-		},
+		nil,
 		// Not Found
 		func() (err error) {
 			svc = createHeadlessService(cluster)
@@ -100,26 +91,18 @@ func createHeadlessService(c *v1alpha1.BookkeeperCluster) *v1.Service {
 }
 
 func createService(c *v1alpha1.BookkeeperCluster, name string, hasClusterIp bool, servicePorts []v1.ServicePort) *v1.Service {
-	clusterIp := ""
+	labels := c.GenerateLabels()
+	clusterIP := ""
 	if !hasClusterIp {
-		clusterIp = v1.ClusterIPNone
+		clusterIP = v1.ClusterIPNone
 	}
-	srv := service.New(c.Namespace, name, c.GenerateLabels(), v1.ServiceSpec{
-		ClusterIP: clusterIp,
-		Selector:  getBookieSelectorLabels(c),
+	srv := service.New(c.Namespace, name, labels, v1.ServiceSpec{
+		ClusterIP: clusterIP,
+		Selector:  labels,
 		Ports:     servicePorts,
 	})
 	srv.Annotations = c.GenerateAnnotations()
 	return srv
-}
-
-func updateService(ctx reconciler.Context, svc *v1.Service, c *v1alpha1.BookkeeperCluster) error {
-	ctx.Logger().Info("Updating the bookkeeper service.",
-		"service.Name", svc.GetName(),
-		"Service.Namespace", svc.GetNamespace(), "NewReplicas", c.Spec.Size)
-	svc.Labels = c.GenerateLabels()
-	svc.Spec.Selector = getBookieSelectorLabels(c)
-	return ctx.Client().Update(context.TODO(), svc)
 }
 
 func servicePorts(c *v1alpha1.BookkeeperCluster) []v1.ServicePort {
@@ -128,8 +111,4 @@ func servicePorts(c *v1alpha1.BookkeeperCluster) []v1.ServicePort {
 		{Name: v1alpha1.AdminPortName, Port: c.Spec.Ports.Admin},
 		{Name: v1alpha1.ServiceMetricsPortName, Port: c.Spec.Ports.Metrics},
 	}
-}
-
-func shouldUpdateService(spec v1alpha1.BookkeeperClusterSpec, sts *v1.Service) bool {
-	return spec.BookkeeperVersion != sts.Labels[k8s.LabelAppVersion]
 }

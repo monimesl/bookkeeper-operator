@@ -23,7 +23,6 @@ import (
 	"github.com/monimesl/operator-helper/k8s"
 	"github.com/monimesl/operator-helper/k8s/pod"
 	"github.com/monimesl/operator-helper/k8s/pvc"
-	"github.com/monimesl/operator-helper/k8s/statefulset"
 	"github.com/monimesl/operator-helper/oputil"
 	"github.com/monimesl/operator-helper/reconciler"
 	v1 "k8s.io/api/apps/v1"
@@ -50,7 +49,7 @@ func ReconcileStatefulSet(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCl
 	}, sts,
 		// Found
 		func() error {
-			if shouldUpdateStatefulSet(cluster.Spec, sts) {
+			if shouldUpdateStatefulSet(ctx, cluster, sts) {
 				if err := updateStatefulset(ctx, sts, cluster); err != nil {
 					return err
 				}
@@ -79,11 +78,22 @@ func ReconcileStatefulSet(ctx reconciler.Context, cluster *v1alpha1.BookkeeperCl
 		})
 }
 
-func shouldUpdateStatefulSet(spec v1alpha1.BookkeeperClusterSpec, sts *v1.StatefulSet) bool {
-	if *spec.Size != *sts.Spec.Replicas {
+func shouldUpdateStatefulSet(ctx reconciler.Context, c *v1alpha1.BookkeeperCluster, sts *v1.StatefulSet) bool {
+	if *c.Spec.Size != *sts.Spec.Replicas {
+		ctx.Logger().Info("Bookkeeper cluster size changed",
+			"from", *sts.Spec.Replicas, "to", *c.Spec.Size)
 		return true
 	}
-	if spec.BookkeeperVersion != sts.Labels[k8s.LabelAppVersion] {
+	if c.Spec.BookkeeperVersion != c.Status.Metadata.BkVersion {
+		ctx.Logger().Info("Bookkeeper version changed",
+			"from", c.Status.Metadata.BkVersion, "to", c.Spec.BookkeeperVersion,
+		)
+		return true
+	}
+	if !mapEqual(c.Spec.BkConfig, c.Status.Metadata.BkConfig) {
+		ctx.Logger().Info("Bookkeeper cluster config changed",
+			"from", c.Status.Metadata.BkConfig, "to", c.Spec.BkConfig,
+		)
 		return true
 	}
 	return false
@@ -91,11 +101,19 @@ func shouldUpdateStatefulSet(spec v1alpha1.BookkeeperClusterSpec, sts *v1.Statef
 
 func updateStatefulset(ctx reconciler.Context, sts *v1.StatefulSet, cluster *v1alpha1.BookkeeperCluster) error {
 	sts.Spec.Replicas = cluster.Spec.Size
-	sts.Labels = cluster.GenerateLabels()
-	sts.Spec.Selector.MatchLabels = getBookieSelectorLabels(cluster)
+	containers := sts.Spec.Template.Spec.Containers
+	for i, container := range containers {
+		if container.Name == bookieComponent {
+			container.Image = cluster.Image().ToString()
+			containers[i] = container
+		}
+	}
+	sts.Spec.Template.Spec.Containers = containers
 	ctx.Logger().Info("Updating the bookkeeper statefulset.",
 		"StatefulSet.Name", sts.GetName(),
-		"StatefulSet.Namespace", sts.GetNamespace(), "NewReplicas", cluster.Spec.Size)
+		"StatefulSet.Namespace", sts.GetNamespace(),
+		"NewReplicas", cluster.Spec.Size,
+		"NewVersion", cluster.Spec.BookkeeperVersion)
 	return ctx.Client().Update(context.TODO(), sts)
 }
 
@@ -130,22 +148,43 @@ func updateStatefulsetPVCs(ctx reconciler.Context, sts *v1.StatefulSet, cluster 
 }
 
 func createStatefulSet(c *v1alpha1.BookkeeperCluster) *v1.StatefulSet {
-	labels := getBookieSelectorLabels(c)
-	spec := statefulset.NewSpec(*c.Spec.Size, c.HeadlessServiceName(),
-		labels, createPersistentVolumeClaims(c), createPodTemplateSpec(c, labels))
-	sts := statefulset.New(c.Namespace, c.StatefulSetName(), c.GenerateLabels(), spec)
-	sts.Annotations = c.GenerateAnnotations()
-	return sts
-}
-
-func createPodTemplateSpec(c *v1alpha1.BookkeeperCluster, labels map[string]string) v12.PodTemplateSpec {
-	annotations := c.GenerateAnnotations()
-	annotations["pod.alpha.kubernetes.io/initialized"] = "true"
-	return v12.PodTemplateSpec{
-		ObjectMeta: pod.NewMetadata(c.Spec.PodConfig, "",
-			c.StatefulSetName(), labels,
-			annotations),
-		Spec: createBookiePodSpec(c),
+	labels := c.GenerateWorkloadLabels(bookieComponent)
+	return &v1.StatefulSet{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "StatefulSet",
+			APIVersion: "apps/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      c.GetName(),
+			Namespace: c.Namespace,
+			Labels: mergeLabels(labels, map[string]string{
+				k8s.LabelAppVersion: c.Spec.BookkeeperVersion,
+				"version":           c.Spec.BookkeeperVersion,
+			}),
+			Annotations: c.GenerateAnnotations(),
+		},
+		Spec: v1.StatefulSetSpec{
+			ServiceName: c.HeadlessServiceName(),
+			Replicas:    c.Spec.Size,
+			Selector: &metav1.LabelSelector{
+				MatchLabels: labels,
+			},
+			UpdateStrategy: v1.StatefulSetUpdateStrategy{
+				Type: v1.RollingUpdateStatefulSetStrategyType,
+			},
+			PodManagementPolicy: v1.OrderedReadyPodManagement,
+			Template: v12.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					GenerateName: c.GetName(),
+					Labels: mergeLabels(labels,
+						c.Spec.PodConfig.Labels,
+					),
+					Annotations: c.Spec.PodConfig.Annotations,
+				},
+				Spec: createBookiePodSpec(c),
+			},
+			VolumeClaimTemplates: createPersistentVolumeClaims(c),
+		},
 	}
 }
 
@@ -256,16 +295,38 @@ func createLivenessProbe(spec v1alpha1.BookkeeperClusterSpec) *v12.Probe {
 }
 
 func createPersistentVolumeClaims(c *v1alpha1.BookkeeperCluster) []v12.PersistentVolumeClaim {
-	labels := getBookieSelectorLabels(c)
-	return []v12.PersistentVolumeClaim{
-		pvc.New(c.Namespace, "index",
-			labels, *c.Spec.Persistence.IndexVolumeClaimSpec,
-		),
-		pvc.New(c.Namespace, "ledger",
-			labels, *c.Spec.Persistence.LedgerVolumeClaimSpec,
-		),
-		pvc.New(c.Namespace, "journal",
-			labels, *c.Spec.Persistence.JournalVolumeClaimSpec,
-		),
+	persistence := c.Spec.Persistence
+	pvcs := []v12.PersistentVolumeClaim{
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "index",
+				Labels: mergeLabels(
+					c.GenerateLabels(),
+				),
+				Annotations: c.Spec.Persistence.Annotations,
+			},
+			Spec: *persistence.IndexVolumeClaimSpec,
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "ledger",
+				Labels: mergeLabels(
+					c.GenerateLabels(),
+				),
+				Annotations: c.Spec.Persistence.Annotations,
+			},
+			Spec: *persistence.LedgerVolumeClaimSpec,
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{
+				Name: "journal",
+				Labels: mergeLabels(
+					c.GenerateLabels(),
+				),
+				Annotations: c.Spec.Persistence.Annotations,
+			},
+			Spec: *persistence.LedgerVolumeClaimSpec,
+		},
 	}
+	return pvcs
 }

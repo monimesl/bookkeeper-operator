@@ -108,7 +108,7 @@ type BookkeeperClusterSpec struct {
 	// BkConfig defines the Bookkeeper configurations to override the bk_server.conf
 	// https://github.com/apache/bookkeeper/tree/master/docker#configuration
 	// +optional
-	BkConfig map[string]string `json:"bkConf"`
+	BkConfig map[string]string `json:"bkConfig"`
 	// PodConfig defines common configuration for the bookkeeper pods
 	// +optional
 	PodConfig basetype.PodConfig `json:"podConfig,omitempty"`
@@ -222,6 +222,8 @@ type Persistence struct {
 	// PVCs will be deleted. The default value is Retain.
 	// +kubebuilder:validation:Enum="Delete";"Retain"
 	ReclaimPolicy VolumeReclaimPolicy `json:"reclaimPolicy,omitempty"`
+	// Annotations defines the annotations to attach to the pod
+	Annotations map[string]string `json:"annotations,omitempty"`
 	// JournalVolumeClaimSpec describes the PVC for the bookkeeper journal
 	JournalVolumeClaimSpec *v1.PersistentVolumeClaimSpec `json:"journal,omitempty"`
 	// LedgerVolumeClaimSpec describes the PVC for the bookkeeper ledgers
@@ -359,11 +361,9 @@ func (in *BookkeeperClusterSpec) createLabels(clusterName string) map[string]str
 	if labels == nil {
 		labels = map[string]string{}
 	}
-	labels["app"] = "bookkeeper"
-	labels["version"] = in.BookkeeperVersion
-	labels[k8s.LabelAppName] = AppName
+	labels["app"] = "zookeeper"
+	labels[k8s.LabelAppName] = "zookeeper"
 	labels[k8s.LabelAppInstance] = clusterName
-	labels[k8s.LabelAppVersion] = in.BookkeeperVersion
 	labels[k8s.LabelAppManagedBy] = internal.OperatorName
 	return labels
 }

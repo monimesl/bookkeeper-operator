@@ -1,27 +1,23 @@
 package bookkeepercluster
 
-import (
-	"github.com/monimesl/bookkeeper-operator/api/v1alpha1"
-	"github.com/monimesl/operator-helper/k8s"
-)
-
-func getBookieSelectorLabels(c *v1alpha1.BookkeeperCluster) map[string]string {
-	labels := c.GenerateWorkloadLabels(bookieComponent)
-	out := make(map[string]string)
-	for k, v := range labels {
-		if _, found := c.Labels[k]; found {
-			continue
+func mergeLabels(ms ...map[string]string) map[string]string {
+	res := make(map[string]string)
+	for _, m := range ms {
+		for key, value := range m {
+			res[key] = value
 		}
-		if _, found := c.Spec.Labels[k]; found {
-			continue
-		}
-		switch k {
-		case "version":
-			continue
-		case k8s.LabelAppVersion:
-			continue
-		}
-		out[k] = v
 	}
-	return out
+	return res
+}
+
+func mapEqual(m1, m2 map[string]string) bool {
+	if len(m1) != len(m2) {
+		return false
+	}
+	for k, v := range m1 {
+		if m2[k] != v {
+			return false
+		}
+	}
+	return true
 }
