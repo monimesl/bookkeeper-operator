@@ -118,13 +118,13 @@ func createConfigmapData(c *v1alpha1.BookkeeperCluster) map[string]string {
 		"BK_BOOKIE_PORT":                fmt.Sprintf("%d", c.Spec.Ports.Bookie),
 		"BK_statsProviderClass":         "org.apache.bookkeeper.stats.prometheus.PrometheusMetricsProvider",
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L118
-		"BK_BOOKIE_MEM_OPTS": strings.Join(jvmOptions.Memory, " "),
+		"BK_BOOKIE_MEM_OPTS": fmt.Sprintf(`"%s"`, strings.Join(jvmOptions.Memory, " ")),
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L119
-		"BK_BOOKIE_GC_OPTS": strings.Join(jvmOptions.Gc, " "),
+		"BK_BOOKIE_GC_OPTS": fmt.Sprintf(`"%s"`, strings.Join(jvmOptions.Gc, " ")),
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/common.sh#L120
-		"BK_BOOKIE_GC_LOGGING_OPTS": strings.Join(jvmOptions.GcLogging, " "),
+		"BK_BOOKIE_GC_LOGGING_OPTS": fmt.Sprintf(`"%s"`, strings.Join(jvmOptions.GcLogging, " ")),
 		// https://github.com/apache/bookkeeper/blob/2346686c3b8621a585ad678926adf60206227367/bin/bookkeeper#L149
-		"BK_BOOKIE_EXTRA_OPTS": strings.Join(jvmOptions.Extra, " "),
+		"BK_BOOKIE_EXTRA_OPTS": fmt.Sprintf(`"%s"`, strings.Join(jvmOptions.Extra, " ")),
 		"CLUSTER_NAME":         c.GetName(),
 	}
 	for k, v := range c.Spec.BkConfig {
