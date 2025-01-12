@@ -12,10 +12,10 @@ kind: ServiceAccount
 metadata:
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
   name: bookkeeper-operator
 ---
@@ -32,14 +32,14 @@ metadata:
   name: bookkeeper-operator-bookkeeper-operator-webhook-secret
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
 data:
-  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVMekNDQXhlZ0F3SUJBZ0lSQU5NZzNwZHZHckNhSXRDQUZFWXFwWk13RFFZSktvWklodmNOQVFFTEJRQXcKR1RFWE1CVUdBMVVFQXhNT2QyVmliMjlyTFhKdmIzUXRZMkV3SGhjTk1qVXdNVEV5TWpFeE16TTJXaGNOTXpVdwpNVEV3TWpFeE16TTJXakJDTVVBd1BnWURWUVFERXpkaWIyOXJhMlZsY0dWeUxXOXdaWEpoZEc5eUxXSnZiMnRyClpXVndaWEl0YjNCbGNtRjBiM0l0ZDJWaWFHOXZheTF6WlhKMmFXTmxNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUYKQUFPQ0FROEFNSUlCQ2dLQ0FRRUFvaVVNQUFxUlVjTHVvVGFMeTFwSDYrSlpwdUFqeW1FYXdUNWFBcERwMUtaeQptbUw2Mng1RnZoZEpJZllRTGRJeEpsQXQ1NjQwNTJwT0xmYW1KQUdPMDNhcTM5WWRHVW5xZm9XbFE4eFhnTDZtCmxLYU9tbk1WQ3k1T0Q5a3NaWTBXMlUwT3ZLVitKUEJXb20vZ3NXNk45TW9KMDhOR3g1d1dzVnZRaURIZk9zSEQKUXM1T1gydFJVQUw3VVQ3a0RQTFk4QjNQaHBNbHoveU9wT0J2a3M0VnhWcTlOVnJCM05MTkhOR0VjbkpTRjZlegp2dW9XSE5wWFl6UU80bzRubDlvY1B5Q0o2dzhPWW84ejhGRVN5U3ByV1Zib2R2TDBnQk9GUVFpMmdMV1V2dk1aCkFsNHpwVzlqczltSTVQV20vU0srRDJUejF4bjRYckdLQjhLaS8rN0h1d0lEQVFBQm80SUJSekNDQVVNd0RnWUQKVlIwUEFRSC9CQVFEQWdXZ01CMEdBMVVkSlFRV01CUUdDQ3NHQVFVRkJ3TUJCZ2dyQmdFRkJRY0RBakFNQmdOVgpIUk1CQWY4RUFqQUFNQjhHQTFVZEl3UVlNQmFBRkdZY0hWRzFXWDBYYlg1dmdkWmFzRWxiVFJEVU1JSGlCZ05WCkhSRUVnZG93Z2RlQ04ySnZiMnRyWldWd1pYSXRiM0JsY21GMGIzSXRZbTl2YTJ0bFpYQmxjaTF2Y0dWeVlYUnYKY2kxM1pXSm9iMjlyTFhObGNuWnBZMldDUzJKdmIydHJaV1Z3WlhJdGIzQmxjbUYwYjNJdFltOXZhMnRsWlhCbApjaTF2Y0dWeVlYUnZjaTEzWldKb2IyOXJMWE5sY25acFkyVXVZbTl2YTJ0bFpYQmxjaTF2Y0dWeVlYUnZjb0pQClltOXZhMnRsWlhCbGNpMXZjR1Z5WVhSdmNpMWliMjlyYTJWbGNHVnlMVzl3WlhKaGRHOXlMWGRsWW1odmIyc3QKYzJWeWRtbGpaUzVpYjI5cmEyVmxjR1Z5TFc5d1pYSmhkRzl5TG5OMll6QU5CZ2txaGtpRzl3MEJBUXNGQUFPQwpBUUVBSEE0UXZGcjYvOEsvNEVSN1VNSnk2MjhTRHdtYzIvZlRTQXZUR3B3OTFRalJaczFUcG9ITFJDS3ovMU9GCk1XU21jaC9tY3dFNWxpdTBYbHJQMkdDQ0JSK2FZSXNTZHFxQVZ0L3RQNkxxTkswK0JqalJYRVlyd1FuNG5weWMKYWszUzNzSEZ2M1kvZXRCRllNWXpoSitEN2hzZnBaSnFic3JPamxkcXBWdElLTjR4UGJhRUhxWnl6QSsvc2NqaQpZako4b01mTG5VZVNFZTFNWnNtYkFqQXBHcEN4UzcrRkk3ZWZhaGQraVJadDhzbTBRRDR2U3JNbjAzNXIrdmxlCk56L3RIQ3VWYnI0bGdRVmRrdm5POWtGS3N0VDJxdzhTa0c0eExqVTNvQ0RKSE9zaHE4MmFQNXV1MGNacWJOVS8KY29tVEw2VXNXMjlBSWlPN05ZbFY5RVZFQ0E9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
-  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBb2lVTUFBcVJVY0x1b1RhTHkxcEg2K0pacHVBanltRWF3VDVhQXBEcDFLWnltbUw2CjJ4NUZ2aGRKSWZZUUxkSXhKbEF0NTY0MDUycE9MZmFtSkFHTzAzYXEzOVlkR1VucWZvV2xROHhYZ0w2bWxLYU8KbW5NVkN5NU9EOWtzWlkwVzJVME92S1YrSlBCV29tL2dzVzZOOU1vSjA4Tkd4NXdXc1Z2UWlESGZPc0hEUXM1TwpYMnRSVUFMN1VUN2tEUExZOEIzUGhwTWx6L3lPcE9CdmtzNFZ4VnE5TlZyQjNOTE5ITkdFY25KU0Y2ZXp2dW9XCkhOcFhZelFPNG80bmw5b2NQeUNKNnc4T1lvOHo4RkVTeVNwcldWYm9kdkwwZ0JPRlFRaTJnTFdVdnZNWkFsNHoKcFc5anM5bUk1UFdtL1NLK0QyVHoxeG40WHJHS0I4S2kvKzdIdXdJREFRQUJBb0lCQVFDZVFNSkJtQTdWV2doRgoyRk1BbXBEdnJQQUxhMkFET2xzK21IaUpZSjZZS2d4WW1wcDBHa3UvaUVLY251aVRrRDdnUWdsTHdqOW9UZDBZCkIwK0lmT3pGZjJDdkx1OGZxNER2RThtRkxuK0k3SXJ4TXM2aitBWmw3ei9KUUJHUTIrK2REeFIvRXBiWHZxc1AKeDFucVV4akIvaDh4UzdwZFAvNzJBOEszNnRVUkpsYU4zMThzU1Y4bGJQeWdiQmNNR1lmaDBQQnBrMGg3bFNqTAptNDB2SVFkeFBnTGlYN0ZaSTZrSVNzdFA5R2p5dkNsdnd5SUQ1VlluRkhKbDlzL1FiTmtINUUwWTFjVFdBa2laCkJsWGgvRjVGV1JvLzFtQzdmMkwvU0MrQTd3eFZNbVVkeVRPUUdmUnRjWVpUNzRkd29vT1R3L0pFN2VnWFNpZkwKckNHVEJuRkJBb0dCQU01UDVWUlZjMWNWT3ovZ25XQ3F0QnFrVVpzdWY3ZGNZb200NVptd2lUdFdMeHBxZnZJTQpSbXdqTnVxM1QxcWVVeHpWWEwwTHFYaldYaG1jZUpDeHBRdUZaTGVUbEI1SlZ2WG5GQVJLNFk0TDNQWHUzM1RJCmRqMC9Ka0dOVjVRNy9DRHp5ZE5rMUNkR2pDc2xhMFZuUzk4NEdFNDRMcENJRWNwWmd2S0dLeXF6QW9HQkFNa3kKQnA4SGMveEltRzd4ZkFuTGJBUlNkRUlSMkhwaUFFeWJaN1dsb2syMHZXR2lYSTZyc1F2M3BzanlVaHdPMVlaOAp4TWV0WUptWkFocmlvYTFZMENlZGpYQ0p4T0IxWnkreDNabHJESDVVa2lON3V4QVlUdXhZV2oyM0VTdHlYbFJ4CnRzNVRPQUtXdmVEZlExSFpDWTNidkYyYjJGblBTR3hjeTVaSnpSTFpBb0dCQUkwMnpxZk0zV2ZMMW9SQWdEZzgKWDQ2a3psN0RreE8wbnBYYUF2NFJnYjBsbnBRY05Nd0VidWR4cXhNNWFZMkROU3hWTm1jSFpuYVpkRXRmZUg3Qgp1VkNMZTRiVDh0eFFJcitwN1YrS3laeHFybEYvc1YvRUhucUprT3ZwalBxZm5GSUp6Q2x2cUc5QnNJdVB6ejd3CkYxU3dscUpqZml2Ymx5SEQ1d2VOb2xwVkFvR0FiZmpJSWJqREx3ekhOUzBOclpUaEwrT1o1RnM0eG53MnlhalEKSVR1dDRXZC9kSlI0bndzOXROcmk4VWR5bGgrTm12c3IzRERxY2twdUdoL3lXM3dHR3dGRlJGUXBwcjdGYmc1OApuOVVoZVJQazVUeEdYVi9NRStlZk84aUt2QUxCaU1xM0wwUFJnNmk5bE9LME8xSzBwRE9OWEdWSTlwNFVhaGEyCnVTa1J6TkVDZ1lBeDk1QnlWZmdCd0NaVVFxRkViS0ZyZURiMm5NL2xCUGI5QWRSUndUbkwwc3JscWwrSzgxWmsKVWljOHI4bXBkOGRlMlp2dURlZEplcnEwUERTTlprV3VsSzlpODBTOU1UcUhydXhTV1psL1dMNUIwRTNPUHFBWQpJNUUrK0ZJbS9GS0N5TmI3MTNIRlVCVEdnQVE0ejhkMG01K1pHZWU2VUY5RWF2Y2Z2WXRMeEE9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUVMakNDQXhhZ0F3SUJBZ0lRRWZnS2l1cmlNcmNiQ3laY3puTEZOREFOQmdrcWhraUc5dzBCQVFzRkFEQVoKTVJjd0ZRWURWUVFERXc1M1pXSnZiMnN0Y205dmRDMWpZVEFlRncweU5UQXhNVEl5TVRJMU5EWmFGdzB6TlRBeApNVEF5TVRJMU5EWmFNRUl4UURBK0JnTlZCQU1UTjJKdmIydHJaV1Z3WlhJdGIzQmxjbUYwYjNJdFltOXZhMnRsClpYQmxjaTF2Y0dWeVlYUnZjaTEzWldKb2IyOXJMWE5sY25acFkyVXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUEKQTRJQkR3QXdnZ0VLQW9JQkFRRENtQ0ppQUkySnpZU0R6UGl0OWd6THpiaVdRbTdiNGprV3FkWkxOK3owZDJuNgpKYVVHY3IwSS93NDBnWTlWanMwMXd1Q3RFbXNpZUlHdkx3UnN2UHNaMndReGdicEVrZXRTM0RnQmxFd2UvTEtlCnJXU095aGxWbjBSVTdBQ3VEZ0poR2pNS3pzV0RHM3BCUllyaWF1TytiQnhmVmhwWXc4dDFLQ2dpUXNjTmx0dVUKelphcFVlUEgzQTRLcHJDVVhnK0FuNG1hYlB5Y01GUnYyeWxSRzNqL2M4RlN2dS9qS1JBVXFic1NsOENpYkxhdApsei9BcHYwRWpsbks2RG44ZWFnRkdiUzJmeU52RUpSakRlOWxRVlRyVlYwaGkvam9Ed3NkczVYL09XUlo1dWhyCkFaTUJ6Sm1GZ3BmclJyYkZvbHBiNURoUVJ3MHdQWjBkbjRDbDU5bGhBZ01CQUFHamdnRkhNSUlCUXpBT0JnTlYKSFE4QkFmOEVCQU1DQmFBd0hRWURWUjBsQkJZd0ZBWUlLd1lCQlFVSEF3RUdDQ3NHQVFVRkJ3TUNNQXdHQTFVZApFd0VCL3dRQ01BQXdId1lEVlIwakJCZ3dGb0FVUERmdFdGbklKOVFmWTlvRHVSNG1kb3dRRGFnd2dlSUdBMVVkCkVRU0IyakNCMTRJM1ltOXZhMnRsWlhCbGNpMXZjR1Z5WVhSdmNpMWliMjlyYTJWbGNHVnlMVzl3WlhKaGRHOXkKTFhkbFltaHZiMnN0YzJWeWRtbGpaWUpMWW05dmEydGxaWEJsY2kxdmNHVnlZWFJ2Y2kxaWIyOXJhMlZsY0dWeQpMVzl3WlhKaGRHOXlMWGRsWW1odmIyc3RjMlZ5ZG1salpTNWliMjlyYTJWbGNHVnlMVzl3WlhKaGRHOXlnazlpCmIyOXJhMlZsY0dWeUxXOXdaWEpoZEc5eUxXSnZiMnRyWldWd1pYSXRiM0JsY21GMGIzSXRkMlZpYUc5dmF5MXoKWlhKMmFXTmxMbUp2YjJ0clpXVndaWEl0YjNCbGNtRjBiM0l1YzNaak1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQgpBUUM2a0JHMW1KRGJFNkd6YWxRM2tFb3VISzlhQ3RydnJGN0FDYkFaSTRqTjQrbFNEdzB5Rzl3bUFhMlJtWXpMCmdwWjM4V2ZXcE5nWkI1V3UvK0VjRUladjI4Q3N6cHF5Rk1hUm0xS1lFNFZpVG42am9RNUF3cTdQclFvd2d2N1IKcGJvZUdkeGVCMEkyNDdxWUU5MUNwNk5TMWJPQzJUMmhYY0YwNVpLYU52RERTMFp6cjl0Um1jQnIyL0wycHhqUAo1STZwS0N1eE52U3hWK3M4UHMyQlpKK21KckxqZFJmeEl6ei9yM0lqcjQ0YnJPQ3BoT2RZVnlVdWJsc1NiU0tyCkpXOTlCUTZ2bkJsa2Z1YjhPMEhnR1U3b1QwWlkxNTF3U2VVRjBGTzI0RlZuOEltQlRUUGxiSmdNMWFyWEJLTFMKUlpWQnppekNteUdhVXJMeDlQVFNZenVVCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBd3BnaVlnQ05pYzJFZzh6NHJmWU15ODI0bGtKdTIrSTVGcW5XU3pmczlIZHAraVdsCkJuSzlDUDhPTklHUFZZN05OY0xnclJKckluaUJyeThFYkx6N0dkc0VNWUc2UkpIclV0dzRBWlJNSHZ5eW5xMWsKanNvWlZaOUVWT3dBcmc0Q1lSb3pDczdGZ3h0NlFVV0s0bXJqdm13Y1gxWWFXTVBMZFNnb0lrTEhEWmJibE0yVwpxVkhqeDl3T0NxYXdsRjRQZ0orSm1tejhuREJVYjlzcFVSdDQvM1BCVXI3djR5a1FGS203RXBmQW9teTJyWmMvCndLYjlCSTVaeXVnNS9IbW9CUm0wdG44amJ4Q1VZdzN2WlVGVTYxVmRJWXY0NkE4TEhiT1YvemxrV2Vib2F3R1QKQWN5WmhZS1g2MGEyeGFKYVcrUTRVRWNOTUQyZEhaK0FwZWZaWVFJREFRQUJBb0lCQUhzeS9uRzFqK2F5NnpiVwp5b3E0d0prM2dhb0FIVmV3L2h2UEl4RTBNeDBEaldFRi9Gajh3NW15Z1RmVTN2NTREb3YrK1dnWnhTSnAwUkVzClgwekl5T0V4dkpIclpCYU5tOE0yRVc5T2lITUY0Y0I4WHJIWVdmblBmOStVRzBvWExJSjFwK01yemZpWHFPc3kKTUIveE5JY1d3MC9JbjUyYk9IRFFIN2l4Tm56dTd1TldkRHBqcWMxMnRZQmZaM3JIazNXWDdvSW5HaFU5QXZORQpyWUJrcUJsNG5Ld0NnY2krWGIvd3gvOGttLzZOQVJJWTdaMWQxa1F3VitHNnpLeWtaQ2sza0c5WG80emV0cGRZCmtpMUM1U0JNMHhzcU9vME5CdjcyYlF2YkRJTzFNSjhkR25aditvdU5IQzRaYzNydXMxMTBzeUlyOWRvenBxakYKV0pvMjVBRUNnWUVBMVNPU3dUZGVaT0JtZzB2WDZXZG5BUFFMbG5ZT3djakZ5eHZVdlBGQjIwaCtHcEtwVlZmNwpob3lkM2UwOUt0WlVqWkxYWCt5b1dsRUY0d0E3bWUrTFpvWFAzL2NmOHo2dFMzellLaGhxc28waXVNMGc0bWlJCjRUMm1ycmdiV3pvUVU1ekU1dEQyRVJRY0Y3WWtpY2VIQzR6N09CaVVXVHUwTG9IZVZSRWRTNUVDZ1lFQTZibmcKdTFRODNkYk1IN2RaVkZRakh0cmp2T0k5N0VUZmltTkJMaXp5blFLeVNiUjNKb2U0eWJ1dlVQZVIyUWQ5M2UrNAppOXE4VEtmOTNSL21qc2RCQnBva0wwZE9TaVlPejNCZTdUaGZYazZXbno3d1h2eDBQdm5uM0FqWnVIckZnRVU3CkR3anFrUThhcityMkwrMVYrejRkaWk3RkNpV3daVWJvRk00R3FORUNnWUFsYVBRR1ErQ21saGlJTFJTOW0rK2gKWkRSd2VWSkh3eVNzYkxzZldyMHpidnJyVVJpMXFSYTEzQktOZEdtTERrbVMrOVlmdVJzbmx4Y1FhK2NLTXRobAo2MUM4UDlUMHplaCsybS9hbTZTR3FHMFN3TFpuNXU4M2thbWkreCthR0l2ckVSWWlhVVQzWkc4MTNqdDFqM2J0Cm1SWXpGMlZhY0RkRS9uaDJ0K1ZMY1FLQmdGeFY3YjIwR3RPOVB5a3NneUw0bG1Oak1HTjNzZVQ4bEorVWRMU3MKVnpER1Z1OGRWNUVtUDArYlVUaVloY3NLMWFQdlI2WWd4UkUzc09oQjZSRHhFUFJ0d3V2V3JNeElXc09DN2syagpYckhnTkVzM1R6a0hYVmxmMjBTblRuUStOSFpuWTF5ZU5pVVdwWUZvUHRoU1dBeUl6cHkvdTJJMTM0a3pTUTZuCkVpUnhBb0dCQU1MUDJxY1BtTE9maFJKa2gzbXBmenBnUWtMSHR3dklkSnVURmFncFhuQVNjb3NJRGdCTWpPZHQKcTNIWFZlZkhKMG1LcThqY3liWkR2Z1ZWS3NpbnU4WVNPSFZ4cEFoY1VnaExpUUNGdlE2VVlKVWNmNzI3d0dOYwpSVjVWNmZkR3lNb0cvdnJTazFTSGRTVkY2RXZTcktBRjREQmlJRS9Nd21yc3JudkVFdzhUCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
 ---
 # Source: bookkeeper-operator/templates/clusterrole.yaml
 # @formatter:off
@@ -49,10 +49,10 @@ metadata:
   name: bookkeeper-operator-manager-role
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
 rules:
   - apiGroups:
@@ -127,10 +127,10 @@ metadata:
   name: bookkeeper-operator-manager-role-binding
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -150,10 +150,10 @@ metadata:
   name: bookkeeper-operator-leader-election-role
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
 rules:
   - apiGroups:
@@ -196,10 +196,10 @@ metadata:
   name: bookkeeper-operator-leader-election-role-binding
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -218,10 +218,10 @@ metadata:
   name: bookkeeper-operator-bookkeeper-operator-webhook-service
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
 spec:
   ports:
@@ -238,10 +238,10 @@ metadata:
   name: bookkeeper-operator-controller-manager-metrics-service
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
 spec:
   ports:
@@ -261,10 +261,10 @@ metadata:
   name: bookkeeper-operator
   namespace: bookkeeper-operator
   labels:
-    helm.sh/chart: bookkeeper-operator-0.3.0
+    helm.sh/chart: bookkeeper-operator-0.3.1
     app.kubernetes.io/name: bookkeeper-operator
     app.kubernetes.io/instance: bookkeeper-operator
-    app.kubernetes.io/version: "0.3.0"
+    app.kubernetes.io/version: "0.3.1"
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 1
@@ -280,7 +280,7 @@ spec:
     spec:
       containers:
         - name: bookkeeper-operator
-          image: monime/bookkeeper-operator:v0.3.0
+          image: monime/bookkeeper-operator:v0.3.1
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
