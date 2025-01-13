@@ -75,7 +75,6 @@ func updateMetadata(ctx reconciler.Context, c *v1alpha1.BookkeeperCluster) error
 			"status", c.Status)
 		// Update metadata only if the cluster is not being deleted
 		if c.DeletionTimestamp.IsZero() {
-			c.Status.Metadata.Size = *c.Spec.Size
 			c.Status.Metadata.BkConfig = c.Spec.BkConfig
 			c.Status.Metadata.BkVersion = c.Spec.BookkeeperVersion
 			if *c.Spec.Size != c.Status.Metadata.Size {
@@ -86,6 +85,7 @@ func updateMetadata(ctx reconciler.Context, c *v1alpha1.BookkeeperCluster) error
 					return err
 				}
 			}
+			c.Status.Metadata.Size = *c.Spec.Size
 			ctx.Logger().Info("Updating the cluster status", "cluster", c.GetName(), "status", c.Status)
 			if err := ctx.Client().Status().Update(context.TODO(), c); err != nil {
 				ctx.Logger().Info("Error updating the cluster status", "error", err)
