@@ -191,12 +191,7 @@ func (in *JVMOptions) setDefaults() (changed bool) {
 	}
 	if in.Gc == nil {
 		changed = true
-		in.Gc = strings.Split(
-			"-XX:+UseG1GC -XX:MaxGCPauseMillis=10 -XX:+ParallelRefProcEnabled "+
-				"-XX:+UnlockExperimentalVMOptions -XX:+DoEscapeAnalysis -verbosegc "+
-				"-XX:ParallelGCThreads=32 -XX:ConcGCThreads=32 -XX:G1NewSizePercent=50 -XX:+DisableExplicitGC "+
-				"-XX:-ResizePLAB -XX:+ExitOnOutOfMemoryError -XX:+PerfDisableSharedMem -Xlog:gc* ",
-			" ")
+		in.Gc = []string{}
 	}
 	if in.GcLogging == nil {
 		changed = true
